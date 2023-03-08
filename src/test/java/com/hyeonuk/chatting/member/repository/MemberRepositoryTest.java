@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,6 +86,7 @@ class MemberRepositoryTest {
                 members = repository.findAll();
                 assertThat(members.size()).isEqualTo(3);
                 assertThat(members).contains(member3);
+
             }
         }
 
@@ -158,6 +160,133 @@ class MemberRepositoryTest {
                 assertThrows(DataIntegrityViolationException.class,()->repository.save(emailBlank));
                 assertThrows(DataIntegrityViolationException.class,()->repository.save(passwordBlank));
                 assertThrows(DataIntegrityViolationException.class,()->repository.save(nicknameBlank));
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Member update test")
+    class MemberUpdateTest{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
+        @Nested
+        @DisplayName("Success")
+        class Success{
+            @Test
+            public void success(){
+                ///given
+                Member forUpdate = Member.builder()
+                        .id(member1.getId())
+                        .email("updateEmail@gmail.com")
+                        .password(member1.getPassword())
+                        .nickname(member1.getNickname())
+                        .build();
+
+                //when
+                repository.save(forUpdate);
+
+                //then
+                Member changed = repository.findById(member1.getId()).get();
+                assertThat(changed).isSameAs(changed);
+            }
+        }
+
+        @Nested
+        @DisplayName("Failure")
+        class Failure{
+            @Test
+            @DisplayName("Email, Nickname duplication exception")
+            public void eMailNicknameDuplicationException(){
+                ///given
+                Member forUpdate = Member.builder()
+                        .id(member1.getId())
+                        .email(member2.getEmail())
+                        .password(member1.getPassword())
+                        .nickname(member1.getNickname())
+                        .build();
+                //when & then
+                repository.save(forUpdate);
+                assertThrows(Exception.class,()->em.flush());
+
+                forUpdate = Member.builder()
+                        .id(member1.getId())
+                        .email(member1.getEmail())
+                        .password(member1.getPassword())
+                        .nickname(member2.getNickname())
+                        .build();
+
+                repository.save(forUpdate);
+                assertThrows(Exception.class,()->em.flush());
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Member delete test")
+    class MemberDeleteTest{
+        @Nested
+        @DisplayName("Success")
+        class Success{
+
+        }
+
+        @Nested
+        @DisplayName("Failure")
+        class Failure{
+
+        }
+    }
+
+    @Nested
+    @DisplayName("findByEmail Test")
+    class FindByEmailTest{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
+        @Nested
+        @DisplayName("Success")
+        class Success{
+            @Test
+            public void successTest(){
+                //given
+                String findEmail1 = member1.getEmail();
+                String findEmail2 = member2.getEmail();
+                String findEmail3 = member3.getEmail();
+
+                //when
+                Optional<Member> finded1 = repository.findByEmail(findEmail1);
+                Optional<Member> finded2 = repository.findByEmail(findEmail2);
+                Optional<Member> finded3 = repository.findByEmail(findEmail3);
+
+                //then
+                assertThat(finded1).isNotEmpty();
+                assertThat(finded1.get()).isSameAs(member1);
+                assertThat(finded2).isNotEmpty();
+                assertThat(finded2.get()).isSameAs(member2);
+                assertThat(finded3).isNotEmpty();
+                assertThat(finded3.get()).isSameAs(member3);
+            }
+        }
+
+        @Nested
+        @DisplayName("Failure")
+        class Failure{
+            @Test
+            @DisplayName("Email Not Found")
+            public void emailNotFoundException(){
+                //given
+                String notExistEmail = "NotExistEmail";
+                //when
+                Optional<Member> notExist = repository.findByEmail(notExistEmail);
+                //then
+                assertThat(notExist).isEmpty();
             }
         }
     }
