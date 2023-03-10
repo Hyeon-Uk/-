@@ -177,6 +177,7 @@ class MemberRepositoryTest {
         @DisplayName("Success")
         class Success{
             @Test
+            @DisplayName("emailUpdate")
             public void success(){
                 ///given
                 Member forUpdate = Member.builder()
@@ -184,6 +185,25 @@ class MemberRepositoryTest {
                         .email("updateEmail@gmail.com")
                         .password(member1.getPassword())
                         .nickname(member1.getNickname())
+                        .build();
+
+                //when
+                repository.save(forUpdate);
+
+                //then
+                Member changed = repository.findById(member1.getId()).get();
+                assertThat(changed).isSameAs(changed);
+            }
+
+            @Test
+            @DisplayName("nickname Update")
+            public void successNicknameUpdateTest(){
+                ///given
+                Member forUpdate = Member.builder()
+                        .id(member1.getId())
+                        .email(member1.getEmail())
+                        .password(member1.getPassword())
+                        .nickname("update nickname")
                         .build();
 
                 //when
@@ -219,7 +239,6 @@ class MemberRepositoryTest {
                         .nickname(member2.getNickname())
                         .build();
 
-                repository.save(forUpdate);
                 assertThrows(Exception.class,()->em.flush());
             }
         }
@@ -228,16 +247,102 @@ class MemberRepositoryTest {
     @Nested
     @DisplayName("Member delete test")
     class MemberDeleteTest{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
         @Nested
         @DisplayName("Success")
         class Success{
+            @Test
+            @DisplayName("deleteById success")
+            public void deleteByIdTest(){
+                //given
+                Long deletedId = member1.getId();
 
+                //when
+                repository.deleteById(deletedId);
+
+                //then
+                List<Member> members = repository.findAll();
+                assertThat(members.size()).isEqualTo(2);
+                assertThat(members).doesNotContain(member1);
+
+                //given
+                Long deletedId2 = member3.getId();
+
+                //when
+                repository.deleteById(deletedId2);
+
+                //then
+                members = repository.findAll();
+                assertThat(members.size()).isEqualTo(1);
+                assertThat(members).doesNotContain(member1).doesNotContain(member3);
+                assertThat(members).contains(member2);
+            }
+
+            @Test
+            @DisplayName("delete by object test")
+            public void deleteByObjectTest(){
+                //given
+                Member deletedMember = member1;
+
+                //when
+                repository.delete(deletedMember);
+
+                //then
+                List<Member> members = repository.findAll();
+                assertThat(members).hasSize(2);
+                assertThat(members).doesNotContain(member1);
+
+                //given
+                deletedMember = member3;
+
+                //when
+                repository.delete(deletedMember);
+
+                //then
+                members = repository.findAll();
+                assertThat(members).hasSize(1).doesNotContain(member3);
+            }
         }
 
         @Nested
         @DisplayName("Failure")
         class Failure{
+            @Test
+            @DisplayName("member id not found exception")
+            public void memberIdNotFoundExceptionTest(){
+                //given
+                Long deletedId = Long.MAX_VALUE;
 
+                List<Member> beforeDelete = repository.findAll();
+
+                //when
+                repository.deleteById(deletedId);
+                List<Member> afterDelete = repository.findAll();
+
+                assertThat(beforeDelete.size()).isEqualTo(afterDelete.size());
+            }
+
+            @Test
+            @DisplayName("member not found exception")
+            public void memberNotFoundExceptionTest(){
+                //given
+                Member notExistMember = Member.builder()
+                        .id(Long.MAX_VALUE)
+                        .build();
+
+                List<Member> beforeDelete = repository.findAll();
+
+                //when
+                repository.delete(notExistMember);
+                List<Member> afterDelete = repository.findAll();
+
+                assertThat(beforeDelete.size()).isEqualTo(afterDelete.size());
+            }
         }
     }
 
