@@ -395,4 +395,54 @@ class MemberRepositoryTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("findByNickname Test")
+    class FindByNicknameTest{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
+        @Nested
+        @DisplayName("Success")
+        class Success{
+            @Test
+            public void successTest(){
+                //given
+                String findNickname1 = member1.getNickname();
+                String findNickname2 = member2.getNickname();
+                String findNickname3 = member3.getNickname();
+
+                //when
+                Optional<Member> finded1 = repository.findByNickname(findNickname1);
+                Optional<Member> finded2 = repository.findByNickname(findNickname2);
+                Optional<Member> finded3 = repository.findByNickname(findNickname3);
+
+                //then
+                assertThat(finded1).isNotEmpty();
+                assertThat(finded1.get()).isSameAs(member1);
+                assertThat(finded2).isNotEmpty();
+                assertThat(finded2.get()).isSameAs(member2);
+                assertThat(finded3).isNotEmpty();
+                assertThat(finded3.get()).isSameAs(member3);
+            }
+        }
+
+        @Nested
+        @DisplayName("Failure")
+        class Failure{
+            @Test
+            @DisplayName("Nickname Not Found")
+            public void emailNotFoundException(){
+                //given
+                String notExistNickname = "NotExistNickname";
+                //when
+                Optional<Member> notExist = repository.findByNickname(notExistNickname);
+                //then
+                assertThat(notExist).isEmpty();
+            }
+        }
+    }
 }
