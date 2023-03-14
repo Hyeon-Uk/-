@@ -7,10 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JoinDto {
+public class LoginDto {
     private String email;
     private String password;
-    private String passwordCheck;
-    private String nickname;
-    private String userCheckHash;
 }
