@@ -12,5 +12,4 @@ public class JoinDto {
     private String password;
     private String passwordCheck;
     private String nickname;
-    private String userCheckHash;
 }

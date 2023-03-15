@@ -26,11 +26,4 @@ public class Member extends BaseEntity {
 
     @Column(name= "nickname",unique = true,nullable = false)
     private String nickname;
-
-    @Column(name = "user_check")
-    @ColumnDefault(value = "false")
-    private Boolean userCheck;
-
-    @Column(name="user_check_hash")
-    private String userCheckHash;
 }

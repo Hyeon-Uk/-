@@ -37,10 +37,6 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         });
 
         //비밀번호 인코딩 구현
-
-        //가입 해시 셋팅
-
-        //이메일 발송
         
         
         return this.entityToMemeberDto(memberRepository.save(this.joinDtoToEntity(dto)));
@@ -48,7 +44,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     /*
     *
-    * 로그인 시에 userCheck부분이 false면 throw exception
+    * 로그인 시에 userCheck부분이 false면 throw exception => 구현 예정
     *
     * 이메일이 존재하지 않거나 패스워드 불일치시 throw exception
     * */
@@ -59,10 +55,6 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
         if(!member.getPassword().equals(dto.getPassword())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        if(!member.getUserCheck()){
-            throw new IllegalArgumentException("이메일 체크를 해주세요");
         }
 
         return entityToMemeberDto(member);

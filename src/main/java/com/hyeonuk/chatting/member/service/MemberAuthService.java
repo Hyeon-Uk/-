@@ -9,18 +9,11 @@ public interface MemberAuthService {
     MemberDto save(JoinDto dto);
     MemberDto login(LoginDto dto);
 
-//    default Member loginDtoToEntity(LoginDto dto){
-//        return Member.builder()
-//                .email(dto.getEmail())
-//                .password(dto.getPassword())
-//                .build();
-//    }
     default Member joinDtoToEntity(JoinDto dto){
         return Member.builder()
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .nickname(dto.getNickname())
-                .userCheckHash(dto.getUserCheckHash())
                 .build();
     }
 
