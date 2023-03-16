@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .field-error{
+            border:1px solid red;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+    <form th:action th:object="${dto}" th:method="post">
+        email <input type="email" th:field="*{email}" th:errorclass="field-error"/>
+        <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}">이메일 입력 오류</p><br>
+        pw <input type="password" th:field="*{password}" th:errorclass="field-error"/>
+        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}">이메일 입력 오류</p><br>
+        pwCheck <input type="password" th:field="*{passwordCheck}" th:errorclass="field-error"/>
+        <p th:if="${#fields.hasErrors('passwordCheck')}" th:errors="*{passwordCheck}">이메일 입력 오류</p><br>
+        nickname <input type="text" th:field="*{nickname}" th:errorclass="field-error"/>
+        <p th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">이메일 입력 오류</p><br>
+        <p class = "field-error" th:each="error : ${#fields.globalErrors()}" th:text="${error}"></p>
+        <input type="submit" value="가입하기"/>
+
+    </form>
+    <a th:href="@{login}">로그인하기</a>
+</body>
+</html>
