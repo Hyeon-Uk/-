@@ -1,5 +1,6 @@
 package com.hyeonuk.chatting.member.service;
 
+import com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder;
 import com.hyeonuk.chatting.member.dto.JoinDto;
 import com.hyeonuk.chatting.member.dto.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
@@ -30,6 +31,16 @@ class MemberAuthServiceImplTest {
 
     @Mock
     private MemberRepository mockMemberRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+
+    @BeforeEach
+    public void init(){
+        lenient().when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+    }
+
 
 
     @Nested
@@ -156,7 +167,7 @@ class MemberAuthServiceImplTest {
                     .id(1l)
                     .email(loginDto.getEmail())
                     .nickname("test")
-                    .password(loginDto.getPassword())
+                    .password(passwordEncoder.encode(loginDto.getPassword()))
                     .build();
         }
 
