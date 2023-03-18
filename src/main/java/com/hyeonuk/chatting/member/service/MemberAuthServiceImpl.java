@@ -21,10 +21,6 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public boolean dtoValidation(BaseDto dto){
-        return dto.validate();
-    }
-
     @Override
     @Transactional
     public MemberDto save(@DtoValid JoinDto dto) {
