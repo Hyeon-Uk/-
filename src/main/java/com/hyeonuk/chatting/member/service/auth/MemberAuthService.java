@@ -1,7 +1,7 @@
-package com.hyeonuk.chatting.member.service;
+package com.hyeonuk.chatting.member.service.auth;
 
-import com.hyeonuk.chatting.member.dto.JoinDto;
-import com.hyeonuk.chatting.member.dto.LoginDto;
+import com.hyeonuk.chatting.member.dto.auth.JoinDto;
+import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 

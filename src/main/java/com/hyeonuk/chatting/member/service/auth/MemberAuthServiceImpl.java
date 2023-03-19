@@ -1,10 +1,8 @@
-package com.hyeonuk.chatting.member.service;
+package com.hyeonuk.chatting.member.service.auth;
 
-import com.hyeonuk.chatting.integ.dto.BaseDto;
 import com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder;
-import com.hyeonuk.chatting.integ.validator.DtoValid;
-import com.hyeonuk.chatting.member.dto.JoinDto;
-import com.hyeonuk.chatting.member.dto.LoginDto;
+import com.hyeonuk.chatting.member.dto.auth.JoinDto;
+import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
@@ -12,7 +10,6 @@ import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +19,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional
-    public MemberDto save(@DtoValid JoinDto dto) {
+    public MemberDto save(JoinDto dto) {
         if(!dto.getPassword().equals(dto.getPasswordCheck())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
@@ -50,7 +46,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     * 이메일이 존재하지 않거나 패스워드 불일치시 throw exception
     * */
     @Override
-    public MemberDto login(@DtoValid LoginDto dto) {
+    public MemberDto login(LoginDto dto) {
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new NotFoundException("해당하는 유저가 존재하지 않습니다."));
 

@@ -2,7 +2,7 @@ package com.hyeonuk.chatting.member.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hyeonuk.chatting.member.dto.JoinDto;
+import com.hyeonuk.chatting.member.dto.auth.JoinDto;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;

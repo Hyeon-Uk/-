@@ -1,13 +1,12 @@
 package com.hyeonuk.chatting.member.controller;
 
-import com.hyeonuk.chatting.member.dto.JoinDto;
-import com.hyeonuk.chatting.member.dto.LoginDto;
+import com.hyeonuk.chatting.member.dto.auth.JoinDto;
+import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
-import com.hyeonuk.chatting.member.service.MemberAuthService;
+import com.hyeonuk.chatting.member.service.auth.MemberAuthService;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

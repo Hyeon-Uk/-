@@ -1,13 +1,14 @@
 package com.hyeonuk.chatting.member.service;
 
 import com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder;
-import com.hyeonuk.chatting.member.dto.JoinDto;
-import com.hyeonuk.chatting.member.dto.LoginDto;
+import com.hyeonuk.chatting.member.dto.auth.JoinDto;
+import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
+import com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

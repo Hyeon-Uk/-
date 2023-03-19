@@ -1,4 +1,4 @@
-package com.hyeonuk.chatting.member.dto;
+package com.hyeonuk.chatting.member.dto.auth;
 
 
 import com.hyeonuk.chatting.integ.dto.BaseDto;
