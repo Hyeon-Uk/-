@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity(name="member")
 @Getter
 @Builder
@@ -26,4 +29,7 @@ public class Member extends BaseEntity {
 
     @Column(name= "nickname",unique = true,nullable = false)
     private String nickname;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Friendship> friendships = new ArrayList<>();
 }
