@@ -27,6 +27,7 @@ public class Member extends BaseEntity {
     @Column(name= "nickname",unique = true,nullable = false)
     private String nickname;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "friendship",
             joinColumns = @JoinColumn(name="member_id"),

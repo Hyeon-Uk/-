@@ -445,4 +445,57 @@ class MemberRepositoryTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("AddFriends Test")
+    public class AddFriendsTest{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
+        @Nested
+        @DisplayName("success")
+        class Success{
+            @Test
+            @DisplayName("add Friends Success")
+            @Transactional
+            public void addFriendsSuccessTest(){
+                //when
+                member1.getFriends().add(member2);
+                repository.save(member1);
+                //then
+                assertThat(repository.findById(member1.getId()).get().getFriends().size()).isEqualTo(1);
+
+                member1.getFriends().add(member3);
+                repository.save(member1);
+
+                assertThat(repository.findById(member1.getId()).get().getFriends().size()).isEqualTo(2);
+            }
+
+            @Test
+            @DisplayName("delete friends")
+            public void deleteFriendsTest(){
+                //given
+                member1.getFriends().add(member2);
+                member1.getFriends().add(member3);
+
+                repository.save(member1);
+                assertThat(repository.findById(member1.getId()).get().getFriends().size()).isEqualTo(2);
+
+                //when & then
+                member1.getFriends().remove(member2);
+                assertThat(repository.findById(member1.getId()).get().getFriends().size()).isEqualTo(1);
+
+                member1.getFriends().remove(member3);
+                assertThat(repository.findById(member1.getId()).get().getFriends().size()).isEqualTo(0);
+            }
+        }
+
+        @Nested
+        @DisplayName("failure")
+        class Failure{
+        }
+    }
 }
