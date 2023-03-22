@@ -113,15 +113,16 @@ class MemberControlServiceImplTest {
             @DisplayName("not found user")
             @Test
             public void notFoundExceptionTest(){
-                when(repository.findById(any())).thenReturn(Optional.ofNullable(null));
 
                 Long memberId = 1l;
+                when(repository.findById(memberId)).thenReturn(Optional.ofNullable(member1));
                 Long targetId = 2l;
+                when(repository.findById(targetId)).thenReturn(Optional.ofNullable(null));
 
                 assertThrows(NotFoundException.class,()->{
                     memberControlService.addFriend(memberId,targetId);
                 });
-                verify(repository,times(0)).findById(anyLong());
+                verify(repository,times(2)).findById(anyLong());
                 verify(repository,times(0)).save(any());
             }
         }
