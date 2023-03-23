@@ -1,7 +1,9 @@
 package com.hyeonuk.chatting.member.repository;
 
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.exception.NotFoundException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +23,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 
 @DataJpaTest
@@ -33,8 +39,8 @@ class MemberRepositoryTest {
     private TestEntityManager em;
 
     /*
-    * 베이스 멤버
-    * */
+     * 베이스 멤버
+     * */
 
     private Member member1,member2,member3;
     @BeforeEach
@@ -496,6 +502,42 @@ class MemberRepositoryTest {
         @Nested
         @DisplayName("failure")
         class Failure{
+            @DisplayName("memberId == targetId")
+            @Test
+            public void selfAddFriendException(){
+                // Given
+                Member member = Member.builder()
+                        .email("test@test.com")
+                        .password("password")
+                        .nickname("tester")
+                        .build();
+
+                // When
+                member.getFriends().add(member);
+                assertThrows(DataIntegrityViolationException.class, () -> {
+                    repository.save(member);
+                    em.flush();
+                });
+            }
+
+            @DisplayName("same friendship insert")
+            @Test
+            public void sameFriendshipInsertExceptionTest(){
+                member1.getFriends().add(member2);
+                repository.save(member2);
+
+                member1.getFriends().add(member2);
+                repository.save(member2);
+                assertThrows(PersistenceException.class,()->{
+                    em.flush();
+                });
+            }
+
+            @DisplayName("not found user")
+            @Test
+            public void notFoundExceptionTest(){
+
+            }
         }
     }
 }

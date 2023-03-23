@@ -1,6 +1,7 @@
 package com.hyeonuk.chatting.member.service.control;
 
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,6 +109,22 @@ class MemberControlServiceImplTest {
                 });
                 verify(repository,times(0)).findById(anyLong());
                 verify(repository,times(0)).save(any());
+            }
+
+            @DisplayName("same friendship insert")
+            @Test
+            public void sameFriendshipInsertExceptionTest(){
+                Long memberId = 1l;
+                Long targetId = 2l;
+
+                lenient().when(repository.findById(memberId)).thenReturn(Optional.ofNullable(member1));
+                lenient().when(repository.findById(targetId)).thenReturn(Optional.ofNullable(member2));
+
+                memberControlService.addFriend(memberId,targetId);
+
+                assertThrows(AlreadyExistException.class,()->{
+                    memberControlService.addFriend(memberId,targetId);
+                });
             }
 
             @DisplayName("not found user")

@@ -4,6 +4,7 @@ import com.hyeonuk.chatting.integ.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,16 @@ public class Member extends BaseEntity {
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "friendship",
-            joinColumns = @JoinColumn(name="member_id"),
-            inverseJoinColumns = @JoinColumn(name="friend_id"))
+    @JoinTable(name = "friendship"
+            ,joinColumns = @JoinColumn(name="member_id")
+            ,inverseJoinColumns = @JoinColumn(name="friend_id")
+    ,uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id","friend_id"}),//같은 친구를 중복으로 처리하지 못하도록 제약조건 설정
+                            @UniqueConstraint(columnNames = {"member_id","member_id"})})//자기 자신을
     private List<Member> friends = new ArrayList<>();
+    @PrePersist//자기 자신을 추가하지 못하도록 설정
+    public void checkSelfFriendship() {
+        if (friends.contains(this)) {
+            throw new DataIntegrityViolationException("Cannot add self as friend.");
+        }
+    }
 }

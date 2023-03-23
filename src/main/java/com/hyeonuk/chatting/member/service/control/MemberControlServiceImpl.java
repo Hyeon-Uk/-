@@ -2,6 +2,7 @@ package com.hyeonuk.chatting.member.service.control;
 
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class MemberControlServiceImpl implements MemberControlService{
     * 1-1 . 없으면 NotFoundException throw
     * 2. 있으면 memberId == targetId 인지 확인
     * 2-1 . 같으면 IllegalArgumentException throw
-    * 3. 없다면 친구관계 넣어주기
+    * 3. 이미 친구라면 AlreadyExistException throw
     * */
     @Override
     public void addFriend(Long memberId, Long targetId) {
@@ -28,6 +29,10 @@ public class MemberControlServiceImpl implements MemberControlService{
         }
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
         Member target = memberRepository.findById(targetId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+
+        if(member.getFriends().contains(target)){
+            throw new AlreadyExistException("이미 친구입니다.");
+        }
 
         member.getFriends().add(target);
         memberRepository.save(member);
