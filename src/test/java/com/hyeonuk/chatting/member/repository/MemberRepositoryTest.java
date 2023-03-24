@@ -1,5 +1,6 @@
 package com.hyeonuk.chatting.member.repository;
 
+import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import jakarta.persistence.EntityManager;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -536,7 +538,11 @@ class MemberRepositoryTest {
             @DisplayName("not found user")
             @Test
             public void notFoundExceptionTest(){
-
+                member1.getFriends().add(Member.builder()
+                        .id(Long.MAX_VALUE).build());
+                assertThrows(JpaObjectRetrievalFailureException.class,()->{
+                    repository.save(member1);
+                });
             }
         }
     }
