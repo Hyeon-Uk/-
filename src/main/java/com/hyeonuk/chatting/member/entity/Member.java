@@ -33,9 +33,10 @@ public class Member extends BaseEntity {
     @JoinTable(name = "friendship"
             ,joinColumns = @JoinColumn(name="member_id")
             ,inverseJoinColumns = @JoinColumn(name="friend_id")
-    ,uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id","friend_id"}),//같은 친구를 중복으로 처리하지 못하도록 제약조건 설정
-                            @UniqueConstraint(columnNames = {"member_id","member_id"})})//자기 자신을
+    ,uniqueConstraints = {@UniqueConstraint(columnNames = {"member_id","friend_id"})}//같은 친구를 중복으로 처리하지 못하도록 제약조건 설정
+    )
     private List<Member> friends = new ArrayList<>();
+
     @PrePersist//자기 자신을 추가하지 못하도록 설정
     public void checkSelfFriendship() {
         if (friends.contains(this)) {

@@ -546,4 +546,45 @@ class MemberRepositoryTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("findByNicknameContaining")
+    public class FindByNicknameContaining{
+        @BeforeEach
+        public void init(){
+            repository.save(member1);
+            repository.save(member2);
+            repository.save(member3);
+        }
+        @Nested
+        @DisplayName("Success")
+        public class Success{
+            @Test
+            @DisplayName("success test")
+            public void successTest(){
+                List<Member> all = repository.findAll();
+                all.stream().forEach(e->{
+                    System.out.println(e.getNickname());
+                });
+
+
+                List<Member> list = repository.findByNicknameContaining("nick");
+                assertThat(list.size()).isEqualTo(3);
+                assertThat(list).contains(member1);
+                assertThat(list).contains(member2);
+                assertThat(list).contains(member3);
+            }
+        }
+
+        @Nested
+        @DisplayName("Failure")
+        public class Failure{
+            @Test
+            @DisplayName("찾지못하는 상황")
+            public void notFoundException(){
+                List<Member> list = repository.findByNicknameContaining("unknown");
+                assertThat(list.size()).isEqualTo(0);
+            }
+        }
+    }
 }

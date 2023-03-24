@@ -1,10 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Title</title>
-</head>
-<body>
+  </head>
+  <body>
     안녕하세요 <span th:text="${member.nickname}"></span> 님!
-</body>
+    <a href="/auth/logout">로그아웃</a>
+    <div id="friends-search">
+      <div>유저 찾기</div>
+      이름 검색<input type="text" id="friend-search-nickname" />
+      <input type="button" id="friend-search-btn" onclick="searchGlobalFriends();" />
+    </div>
+    <div id="friends-search-list"></div>
+
+    <span th:each="friend : ${member.friends}" id="friends-list">
+      <div th:text="${friend.nickname}" id="${friend.id}"></div>
+    </span>
+
+    <script th:inline="javascript">
+      async function searchGlobalFriends() {
+        const friendSearchNickname = document.querySelector("#friend-search-nickname").value;
+        let response = await fetch(`/member?nickname=${friendSearchNickname}`);
+        let data = await response.json();
+        let list = document.querySelector("#friends-search-list");
+
+        while (list.firstChild) {
+          list.removeChild(list.firstChild);
+        }
+
+        data.forEach((member) => {
+          let div = makeFriendSearchDiv(member);
+          document.querySelector("#friends-search-list").appendChild(div);
+        });
+      }
+
+      function makeFriendSearchDiv(member) {
+        let div = document.createElement("div");
+        div.id = member.id;
+        div.innerHTML = member.nickname;
+        div.addEventListener("click", () => {
+          let id = member.id;
+          alert(id);
+          fetch("/member", { method: "POST", data: JSON.stringify({ id }) }).then(() => {
+            document.querySelector("#friends-search-list").appendChild(div);
+          });
+        });
+        return div;
+      }
+    </script>
+  </body>
 </html>
