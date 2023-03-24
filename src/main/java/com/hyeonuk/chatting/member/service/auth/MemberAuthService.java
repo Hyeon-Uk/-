@@ -5,6 +5,8 @@ import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 
+import java.util.stream.Collectors;
+
 public interface MemberAuthService {
     MemberDto save(JoinDto dto);
     MemberDto login(LoginDto dto);
@@ -22,6 +24,13 @@ public interface MemberAuthService {
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
+                .friends(member.getFriends().stream().map(friend->{
+                    return MemberDto.builder()
+                            .email(friend.getEmail())
+                            .nickname(friend.getNickname())
+                            .id(friend.getId())
+                            .build();
+                }).collect(Collectors.toList()))
                 .build();
     }
 }
