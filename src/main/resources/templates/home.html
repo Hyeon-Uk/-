@@ -21,7 +21,7 @@
     <script th:inline="javascript">
       async function searchGlobalFriends() {
         const friendSearchNickname = document.querySelector("#friend-search-nickname").value;
-        let response = await fetch(`/member?nickname=${friendSearchNickname}`);
+        let response = await fetch(`/api/member?nickname=${friendSearchNickname}`);
         let data = await response.json();
         let list = document.querySelector("#friends-search-list");
 
@@ -39,10 +39,15 @@
         let div = document.createElement("div");
         div.id = member.id;
         div.innerHTML = member.nickname;
-        div.addEventListener("click", () => {
+        div.addEventListener("click",async () => {
           let id = member.id;
-          alert(id);
-          fetch("/member", { method: "POST", data: JSON.stringify({ id }) }).then(() => {
+          let data = JSON.stringify({id});
+          alert(data);
+          console.log(data);
+          await fetch("/api/member", { method: "POST", body: data ,headers:{'Content-Type':'application/json'}})
+          .then((response)=>response.text())
+          .then((response) => {
+            alert(response);
             document.querySelector("#friends-search-list").appendChild(div);
           });
         });

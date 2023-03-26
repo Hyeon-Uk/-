@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/member")
+@RequestMapping("/api/member")
 @Slf4j
 @RequiredArgsConstructor
 public class MemberControlController {
@@ -29,15 +29,12 @@ public class MemberControlController {
     @ResponseBody
     @GetMapping
     public ResponseEntity<List<MemberDto>> findMemberByNickname(@Validated MemberSearchDto dto) {
-        log.info("nickname = {}",dto.getNickname());
         return new ResponseEntity<>(memberControlService.findAllByNickname(dto),HttpStatus.OK);
     }
 
     @ResponseBody
     @PostMapping
-    public ResponseEntity<Boolean> addMember(@SessionAttribute("member")MemberDto member, @RequestBody FriendAddDto dto){
-        log.info("member = {}",member.getId());
-        log.info("Friends = {}",dto.getId());
+    public ResponseEntity<Boolean> addMember(@SessionAttribute("member")MemberDto member,@RequestBody FriendAddDto dto){
         memberControlService.addFriend(member,MemberDto.builder().id(dto.getId()).build());
         return new ResponseEntity<>(true,HttpStatus.OK);
     }
