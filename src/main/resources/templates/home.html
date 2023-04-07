@@ -23,6 +23,12 @@
         const friendSearchNickname = document.querySelector("#friend-search-nickname").value;
         let response = await fetch(`/api/member?nickname=${friendSearchNickname}`);
         let data = await response.json();
+        if(data.error){
+          alert("오류");
+          return;
+        }
+
+        data = data.response;
         let list = document.querySelector("#friends-search-list");
 
         while (list.firstChild) {
@@ -42,12 +48,15 @@
         div.addEventListener("click",async () => {
           let id = member.id;
           let data = JSON.stringify({id});
-          alert(data);
-          console.log(data);
           await fetch("/api/member", { method: "POST", body: data ,headers:{'Content-Type':'application/json'}})
-          .then((response)=>response.text())
+          .then((response)=>response.json())
           .then((response) => {
-            alert(response);
+          console.log(response);
+            if(response.error){
+              alert(response.error.message);
+              return;
+            }
+            response = response.response;
             document.querySelector("#friends-search-list").appendChild(div);
           });
         });

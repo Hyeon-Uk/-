@@ -1,5 +1,6 @@
 package com.hyeonuk.chatting.member.controller;
 
+import com.hyeonuk.chatting.integ.util.ApiUtils;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.dto.control.FriendAddDto;
 import com.hyeonuk.chatting.member.dto.control.MemberSearchDto;
@@ -28,14 +29,15 @@ public class MemberControlController {
     * */
     @ResponseBody
     @GetMapping
-    public ResponseEntity<List<MemberDto>> findMemberByNickname(@Validated MemberSearchDto dto) {
-        return new ResponseEntity<>(memberControlService.findAllByNickname(dto),HttpStatus.OK);
+    public ResponseEntity<ApiUtils.ApiResult<List<MemberDto>>> findMemberByNickname(@Validated MemberSearchDto dto) {
+        return ApiUtils.success(memberControlService.findAllByNickname(dto),HttpStatus.OK);
     }
 
     @ResponseBody
     @PostMapping
-    public ResponseEntity<Boolean> addMember(@SessionAttribute("member")MemberDto member,@RequestBody FriendAddDto dto){
+    public ResponseEntity<ApiUtils.ApiResult<Boolean>> addMember(@SessionAttribute("member")MemberDto member, @RequestBody FriendAddDto dto){
         memberControlService.addFriend(member,MemberDto.builder().id(dto.getId()).build());
-        return new ResponseEntity<>(true,HttpStatus.OK);
+//        return new ResponseEntity<>(true,HttpStatus.OK);
+        return ApiUtils.success(true,HttpStatus.OK);
     }
 }
