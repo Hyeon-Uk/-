@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -58,11 +60,20 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     * 로그인 시에 userCheck부분이 false면 throw exception => 구현 예정
     *
     * 이메일이 존재하지 않거나 패스워드 불일치시 throw exception
+    *
+    *
     * */
     @Override
     public MemberDto login(LoginDto dto) {
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new NotFoundException("해당하는 유저가 존재하지 않습니다."));
+        //해당 유저의 blockedTime이 안지났다면 throw Exception
+//        if(member.getMemberSecurity().getBlockedTime().compareTo(LocalDateTime.now())>0){
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//            String format = dateFormat.format(member.getMemberSecurity().getBlockedTime());
+//            throw new IllegalAccessException(format.concat(" 시까지 로그인이 불가능합니다."));
+//        }
+
         String encoded = passwordEncoder.encode(dto.getPassword().concat(member.getMemberSecurity().getSalt()));
         if(!member.getPassword().equals(encoded)){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");

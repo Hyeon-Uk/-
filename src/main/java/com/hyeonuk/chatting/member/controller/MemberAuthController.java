@@ -70,6 +70,9 @@ public class MemberAuthController {
         }catch(IllegalArgumentException passwordNotMatchException){
             bindingResult.addError(new ObjectError("dto",passwordNotMatchException.getMessage()));
         }
+//        catch(IllegalAccessException blockedTimeNotPassException){
+//            bindingResult.addError(new ObjectError("dto",blockedTimeNotPassException.getMessage()));
+//        }
 
         if(bindingResult.hasErrors()){
             return "auth/login";
