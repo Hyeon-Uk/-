@@ -2,6 +2,7 @@ package com.hyeonuk.chatting.member.repository;
 
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,6 +47,7 @@ class MemberRepositoryTest {
      * */
 
     private Member member1,member2,member3;
+    private MemberSecurity memberSecurity1,memberSecurity2,memberSecurity3;
     @BeforeEach
     public void initMembers(){
         member1 = Member.builder()
@@ -62,6 +65,23 @@ class MemberRepositoryTest {
                 .password("password3")
                 .nickname("nickname3")
                 .build();
+
+        memberSecurity1 = MemberSecurity.builder()
+                .member(member1)
+                .salt(UUID.randomUUID().toString())
+                .build();
+        memberSecurity2 = MemberSecurity.builder()
+                .member(member2)
+                .salt(UUID.randomUUID().toString())
+                .build();
+        memberSecurity3 = MemberSecurity.builder()
+                .member(member3)
+                .salt(UUID.randomUUID().toString())
+                .build();
+
+        member1.memberSecurityInit(memberSecurity1);
+        member2.memberSecurityInit(memberSecurity2);
+        member3.memberSecurityInit(memberSecurity3);
     }
     @Nested
     @DisplayName("Member Save Test")
@@ -78,6 +98,8 @@ class MemberRepositoryTest {
                 List<Member> members = repository.findAll();
                 assertThat(members.size()).isEqualTo(1);
                 assertThat(members).contains(member1);
+                assertThat(members.get(0).getMemberSecurity().getMember_id()).isEqualTo(member1.getId());
+                assertThat(members.get(0).getMemberSecurity().getSalt()).isEqualTo(memberSecurity1.getSalt());
 
                 //when
                 repository.save(member2);
@@ -86,6 +108,9 @@ class MemberRepositoryTest {
                 members = repository.findAll();
                 assertThat(members.size()).isEqualTo(2);
                 assertThat(members).contains(member2);
+                assertThat(members.get(1).getMemberSecurity().getMember_id()).isEqualTo(member2.getId());
+                assertThat(members.get(1).getMemberSecurity().getSalt()).isEqualTo(memberSecurity2.getSalt());
+
 
                 //when
                 repository.save(member3);
@@ -94,7 +119,8 @@ class MemberRepositoryTest {
                 members = repository.findAll();
                 assertThat(members.size()).isEqualTo(3);
                 assertThat(members).contains(member3);
-
+                assertThat(members.get(2).getMemberSecurity().getMember_id()).isEqualTo(member3.getId());
+                assertThat(members.get(2).getMemberSecurity().getSalt()).isEqualTo(memberSecurity3.getSalt());
             }
         }
 

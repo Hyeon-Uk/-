@@ -9,7 +9,6 @@ import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
-import com.hyeonuk.chatting.member.repository.MemberSecurityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.util.UUID;
 public class MemberAuthServiceImpl implements MemberAuthService {
 
     private final MemberRepository memberRepository;
-    private final MemberSecurityRepository memberSecurityRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -49,6 +47,9 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                         .build();
         dto.setPassword(encoded);//솔트를 적용하여 저장
         dto.setSecurity(security);
+        
+        //이메일 발송
+        
         return this.entityToMemeberDto(memberRepository.save(this.joinDtoToEntity(dto)));
     }
 
