@@ -1,6 +1,7 @@
 package com.hyeonuk.chatting.member.dto.auth;
 
 
+import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -19,4 +20,6 @@ public class JoinDto{
     private String passwordCheck;
     @NotBlank(message="닉네임을 입력해주세요")
     private String nickname;
+
+    MemberSecurity security;
 }

@@ -8,17 +8,24 @@ import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
+import com.hyeonuk.chatting.member.entity.MemberSecurity;
+import com.hyeonuk.chatting.member.repository.MemberSecurityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MemberAuthServiceImpl implements MemberAuthService {
 
     private final MemberRepository memberRepository;
+    private final MemberSecurityRepository memberSecurityRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional//회원정보와 security
     public MemberDto save(JoinDto dto) {
         if(!dto.getPassword().equals(dto.getPasswordCheck())){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
@@ -33,9 +40,15 @@ public class MemberAuthServiceImpl implements MemberAuthService {
             throw new AlreadyExistException(member.getNickname()+"은 이미 존재하는 닉네임입니다.");
         });
 
-        //비밀번호 인코딩
-        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-
+        //비밀번호 인코딩 SHA256 & salt
+        String salt = UUID.randomUUID().toString();
+        String encoded = passwordEncoder.encode(dto.getPassword().concat(salt));
+        dto.setPassword(encoded);
+        MemberSecurity security = MemberSecurity.builder()
+                        .salt(salt)//처음 랜덤하게 UUID저장
+                        .build();
+        dto.setPassword(encoded);//솔트를 적용하여 저장
+        dto.setSecurity(security);
         return this.entityToMemeberDto(memberRepository.save(this.joinDtoToEntity(dto)));
     }
 
@@ -49,9 +62,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     public MemberDto login(LoginDto dto) {
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new NotFoundException("해당하는 유저가 존재하지 않습니다."));
-
-        String encoded = passwordEncoder.encode(dto.getPassword());
-
+        String encoded = passwordEncoder.encode(dto.getPassword().concat(member.getMemberSecurity().getSalt()));
         if(!member.getPassword().equals(encoded)){
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }

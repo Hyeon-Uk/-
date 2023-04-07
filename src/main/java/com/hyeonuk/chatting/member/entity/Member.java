@@ -3,7 +3,6 @@ package com.hyeonuk.chatting.member.entity;
 import com.hyeonuk.chatting.integ.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
@@ -27,6 +26,13 @@ public class Member extends BaseEntity {
 
     @Column(name= "nickname",unique = true,nullable = false)
     private String nickname;
+
+    @OneToOne(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true)
+    MemberSecurity memberSecurity ;
+
+    public void memberSecurityInit(MemberSecurity memberSecurity){
+        this.memberSecurity=memberSecurity;
+    }
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)

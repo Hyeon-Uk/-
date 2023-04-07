@@ -12,11 +12,16 @@ public interface MemberAuthService {
     MemberDto login(LoginDto dto);
 
     default Member joinDtoToEntity(JoinDto dto){
-        return Member.builder()
+
+        Member member = Member.builder()
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .nickname(dto.getNickname())
+                .memberSecurity(dto.getSecurity())
                 .build();
+        dto.getSecurity().setMember(member);
+
+        return member;
     }
 
     default MemberDto entityToMemeberDto(Member member){
