@@ -3,8 +3,8 @@ package com.hyeonuk.chatting.member.service.control;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.dto.control.MemberSearchDto;
 import com.hyeonuk.chatting.member.entity.Member;
-import com.hyeonuk.chatting.member.exception.AlreadyExistException;
-import com.hyeonuk.chatting.member.exception.NotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
+import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,8 @@ public class MemberControlServiceImpl implements MemberControlService{
         if(memberId==targetId){
             throw new IllegalArgumentException("자기 자신을 친구추가할 수 없습니다.");
         }
-        Member memberEntity = memberRepository.findById(memberId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
-        Member targetEntity = memberRepository.findById(targetId).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다."));
+        Member memberEntity = memberRepository.findById(memberId).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        Member targetEntity = memberRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 
         if(memberEntity.getFriends().contains(targetEntity)){
             throw new AlreadyExistException("이미 친구입니다.");
@@ -45,7 +45,7 @@ public class MemberControlServiceImpl implements MemberControlService{
 
     @Override
     public MemberDto findById(Long memberId) {
-        return entityToMemeberDto(memberRepository.findById(memberId).orElseThrow(()->new NotFoundException("해당 유저를 찾을 수 없습니다.")));
+        return entityToMemeberDto(memberRepository.findById(memberId).orElseThrow(()->new UserNotFoundException("해당 유저를 찾을 수 없습니다.")));
     }
 
     @Override

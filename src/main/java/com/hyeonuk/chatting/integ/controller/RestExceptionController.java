@@ -1,9 +1,8 @@
 package com.hyeonuk.chatting.integ.controller;
 
 import com.hyeonuk.chatting.integ.util.ApiUtils;
-import com.hyeonuk.chatting.member.exception.AlreadyExistException;
+import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

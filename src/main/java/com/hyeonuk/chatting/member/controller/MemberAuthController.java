@@ -3,9 +3,10 @@ package com.hyeonuk.chatting.member.controller;
 import com.hyeonuk.chatting.member.dto.auth.JoinDto;
 import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
-import com.hyeonuk.chatting.member.exception.AlreadyExistException;
-import com.hyeonuk.chatting.member.exception.NotFoundException;
-import com.hyeonuk.chatting.member.exception.RestrictionException;
+import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
+import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
+import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.service.auth.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/auth")
@@ -26,67 +28,54 @@ public class MemberAuthController {
     private final MemberAuthService authService;
 
     @GetMapping("/join")
-    public String join(Model model){
-        model.addAttribute("dto",new JoinDto());
+    public String join(Model model) {
+        model.addAttribute("dto", new JoinDto());
         return "auth/join";
     }
 
     @PostMapping("/join")
-    public String joinProc(@Validated @ModelAttribute("dto") JoinDto dto, BindingResult bindingResult){
+    public String joinProc(@Validated @ModelAttribute("dto") JoinDto dto, BindingResult bindingResult) {
         try {
             authService.save(dto);
-        } catch (IllegalArgumentException passwordNotMatchException) {
-            bindingResult.addError(new ObjectError("dto",passwordNotMatchException.getMessage()));
-        } catch(AlreadyExistException alreadyExistException){
-            bindingResult.addError(new ObjectError("dto",alreadyExistException.getMessage()));
-        }
-
-
-        if(bindingResult.hasErrors()){
+        } catch (IllegalArgumentException | AlreadyExistException exception) {
+            bindingResult.addError(new ObjectError("dto", exception.getMessage()));
             return "auth/join";
         }
-
 
         return "redirect:/auth/login";
     }
 
     @GetMapping("/login")
-    public String login(Model model){
-        model.addAttribute("dto",new LoginDto());
+    public String login(Model model) {
+        model.addAttribute("dto", new LoginDto());
         return "auth/login";
     }
+
     @PostMapping("/login")
     public String loginProc(@Validated @ModelAttribute("dto") LoginDto dto,
                             BindingResult bindingResult,
-                            HttpSession session){
-        if(bindingResult.hasErrors()){
+                            HttpSession session) {
+        if (bindingResult.hasErrors()) {
             return "auth/login";
         }
 
         MemberDto loginMember = null;
-        try{
+        try {
             loginMember = authService.login(dto);
-        }catch(NotFoundException userNotFoundException){
-            bindingResult.addError(new ObjectError("dto",userNotFoundException.getMessage()));
-        }catch(IllegalArgumentException passwordNotMatchException){
-            bindingResult.addError(new ObjectError("dto",passwordNotMatchException.getMessage()));
-        }catch(RestrictionException blockedTimeNotPassException){
-            bindingResult.addError(new ObjectError("dto",blockedTimeNotPassException.getMessage()));
-        }
-
-        if(bindingResult.hasErrors()){
+        } catch (UserNotFoundException | RestrictionException exception) {
+            bindingResult.addError(new ObjectError("dto", exception.getMessage()));
             return "auth/login";
         }
 
-        session.setAttribute("member",loginMember);
+        session.setAttribute("member", loginMember);
 
         return "redirect:/";
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request){
+    public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if(session!=null) {
+        if (session != null) {
             session.invalidate();
         }
         return "redirect:/";

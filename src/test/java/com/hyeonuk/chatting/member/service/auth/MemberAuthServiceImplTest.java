@@ -6,11 +6,10 @@ import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
-import com.hyeonuk.chatting.member.exception.AlreadyExistException;
-import com.hyeonuk.chatting.member.exception.NotFoundException;
-import com.hyeonuk.chatting.member.exception.RestrictionException;
+import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
+import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
-import com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.format.datetime.DateFormatter;
 
 import java.util.Optional;
 
@@ -246,7 +244,7 @@ class MemberAuthServiceImplTest {
                 when(mockMemberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(null));
 
                 //when & then
-                String message = assertThrows(NotFoundException.class,()->memberAuthService.login(loginDto)).getMessage();
+                String message = assertThrows(UserNotFoundException.class,()->memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("해당하는 유저가 존재하지 않습니다.");
             }
         }
