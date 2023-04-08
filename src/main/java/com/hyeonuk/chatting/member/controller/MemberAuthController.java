@@ -5,7 +5,8 @@ import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
-import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.login.InfoNotMatchException;
+import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.service.auth.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/auth")
@@ -37,7 +37,7 @@ public class MemberAuthController {
     public String joinProc(@Validated @ModelAttribute("dto") JoinDto dto, BindingResult bindingResult) {
         try {
             authService.save(dto);
-        } catch (IllegalArgumentException | AlreadyExistException exception) {
+        } catch (PasswordNotMatchException | AlreadyExistException exception) {
             bindingResult.addError(new ObjectError("dto", exception.getMessage()));
             return "auth/join";
         }
@@ -62,7 +62,7 @@ public class MemberAuthController {
         MemberDto loginMember = null;
         try {
             loginMember = authService.login(dto);
-        } catch (UserNotFoundException | RestrictionException exception) {
+        } catch (InfoNotMatchException | RestrictionException exception) {
             bindingResult.addError(new ObjectError("dto", exception.getMessage()));
             return "auth/login";
         }

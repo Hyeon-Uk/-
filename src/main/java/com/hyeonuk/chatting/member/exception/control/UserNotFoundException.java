@@ -1,4 +1,4 @@
-package com.hyeonuk.chatting.member.exception.auth.login;
+package com.hyeonuk.chatting.member.exception.control;
 
 public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(String message) {

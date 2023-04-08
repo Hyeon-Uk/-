@@ -7,7 +7,9 @@ import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
-import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
+import com.hyeonuk.chatting.member.exception.auth.login.InfoNotMatchException;
+import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -112,7 +114,7 @@ class MemberAuthServiceImplTest {
                 joinDto1.setPasswordCheck(joinDto1.getPassword().concat(joinDto1.getPassword()));
 
                 //when & then
-                String message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.save(joinDto1)).getMessage();
+                String message = assertThrows(PasswordNotMatchException.class, () -> memberAuthService.save(joinDto1)).getMessage();
 
                 assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
             }
@@ -222,15 +224,15 @@ class MemberAuthServiceImplTest {
                 );
 
                 //when & then
-                String message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
+                String message = assertThrows(InfoNotMatchException.class, () -> memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
                 assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(1);//tryCount 1 증가
 
-                message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
+                message = assertThrows(InfoNotMatchException.class, () -> memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
                 assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(2);//tryCount 2로 증가
 
-                message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
+                message = assertThrows(InfoNotMatchException.class, () -> memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
                 assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(0);//tryCount 3으로 증가하면 0으로 초기화 & blockTime 갱신
                 assertThat(loginMember.getMemberSecurity().getBlockedTime()).isNotNull();//blocked 갱신
@@ -244,7 +246,7 @@ class MemberAuthServiceImplTest {
                 when(mockMemberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(null));
 
                 //when & then
-                String message = assertThrows(UserNotFoundException.class,()->memberAuthService.login(loginDto)).getMessage();
+                String message = assertThrows(InfoNotMatchException.class,()->memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("해당하는 유저가 존재하지 않습니다.");
             }
         }

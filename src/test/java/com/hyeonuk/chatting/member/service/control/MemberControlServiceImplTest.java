@@ -4,7 +4,7 @@ import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.dto.control.MemberSearchDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
-import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

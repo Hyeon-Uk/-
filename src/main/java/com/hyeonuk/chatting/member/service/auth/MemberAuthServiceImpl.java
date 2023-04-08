@@ -7,7 +7,8 @@ import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
-import com.hyeonuk.chatting.member.exception.auth.login.UserNotFoundException;
+import com.hyeonuk.chatting.member.exception.auth.login.InfoNotMatchException;
+import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
@@ -68,7 +69,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Override
     public MemberDto login(LoginDto dto) {
         Member member = memberRepository.findByEmail(dto.getEmail())
-                .orElseThrow(()-> new UserNotFoundException("해당하는 유저가 존재하지 않습니다."));
+                .orElseThrow(()-> new InfoNotMatchException("해당하는 유저가 존재하지 않습니다."));
         //해당 유저의 blockedTime이 안지났다면 throw Exception
         if(member.getMemberSecurity().getBlockedTime()!= null && member.getMemberSecurity().getBlockedTime().compareTo(LocalDateTime.now())>0){
             String format = member.getMemberSecurity().getBlockedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).concat(" 까지 로그인이 불가능합니다.");
@@ -79,9 +80,10 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         if(!member.getPassword().equals(encoded)){
             member.getMemberSecurity().updateTryCount();
             memberRepository.save(member);
-            throw new UserNotFoundException("비밀번호가 일치하지 않습니다.");
+            throw new InfoNotMatchException("비밀번호가 일치하지 않습니다.");
         }
-
+        member.getMemberSecurity().loginSuccess();//로그인 성공으로 초기화
+        memberRepository.save(member);
         return entityToMemeberDto(member);
     }
 }
