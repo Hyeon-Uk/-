@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.hyeonuk.chatting.integ.service.encrypt.ShaPasswordEncoder</OriginalElement>
+  <nodes>
+    <node x="1224.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.member.dto.control.FriendAddDto</node>
+    <node x="485.0597168423269" y="-195.30168453292504">com.hyeonuk.chatting.member.dto.auth.LoginDto</node>
+    <node x="347.0842266462482" y="76.69831546707496">com.hyeonuk.chatting.integ.config.AppConfig</node>
+    <node x="1759.5604462560934" y="-598.3169984686066">com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException</node>
+    <node x="322.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.integ.interceptor.SessionInterceptor</node>
+    <node x="1055.607919456706" y="-76.30168453292504">com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl</node>
+    <node x="1819.7052893132754" y="15.695252679938676">com.hyeonuk.chatting.member.service.control.MemberControlService</node>
+    <node x="1496.607919456706" y="-76.30168453292504">com.hyeonuk.chatting.member.service.control.MemberControlServiceImpl</node>
+    <node x="541.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.integ.controller.RestExceptionController</node>
+    <node x="1194.4412527900392" y="-631.4770290964778">com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder</node>
+    <node x="1659.8039741164462" y="-540.2649310872895">com.hyeonuk.chatting.member.exception.control.UserNotFoundException</node>
+    <node x="1310.1038344893857" y="-507.88973966309345">com.hyeonuk.chatting.member.repository.MemberRepository</node>
+    <node x="444.7092266462482" y="-76.30168453292504">com.hyeonuk.chatting.member.controller.MemberAuthController</node>
+    <node x="1414.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.member.dto.MemberDto</node>
+    <node x="322.0842266462482" y="-436.30168453292504">com.hyeonuk.chatting.integ.entity.BaseEntity</node>
+    <node x="798.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.member.dto.control.MemberSearchDto</node>
+    <node x="1020.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.home.controller.HomeController</node>
+    <node x="384.5597168423269" y="-355.30168453292504">com.hyeonuk.chatting.member.entity.Member</node>
+    <node x="1591.0842266462482" y="-2.3016845329250373">com.hyeonuk.chatting.integ.util.ApiUtils</node>
+    <node x="1890.0275575773958" y="-540.2649310872895">com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException</node>
+    <node x="334.0597168423269" y="-274.30168453292504">com.hyeonuk.chatting.member.entity.MemberSecurity</node>
+    <node x="618.0597168423269" y="-195.30168453292504">com.hyeonuk.chatting.member.service.auth.MemberAuthService</node>
+    <node x="938.4936479696521" y="-631.4770290964778">com.hyeonuk.chatting.integ.service.encrypt.ShaPasswordEncoder</node>
+    <node x="1953.5577475502707" y="90.03981623277184">com.hyeonuk.chatting.member.controller.MemberControlController</node>
+    <node x="363.0597168423269" y="-195.30168453292504">com.hyeonuk.chatting.member.dto.auth.JoinDto</node>
+    <node x="1552.5604462560934" y="-598.3169984686066">com.hyeonuk.chatting.member.exception.auth.login.RestrictionException</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.hyeonuk.chatting.member.controller.MemberAuthController" target="com.hyeonuk.chatting.member.service.auth.MemberAuthService" relationship="TO_ONE">
+      <point x="52.0" y="-14.5" />
+      <point x="600.7092266462482" y="-96.30168453292504" />
+      <point x="664.8097168423269" y="-96.30168453292504" />
+      <point x="-46.75" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.control.MemberControlServiceImpl" target="com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="1614.107919456706" y="-96.30168453292504" />
+      <point x="1621.6038344893857" y="-96.30168453292504" />
+      <point x="1621.6038344893857" y="-136.30168453292504" />
+      <point x="1988.5275575773958" y="-136.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="1164.107919456706" y="-154.6209800918837" />
+      <point x="1883.0604462560934" y="-154.6209800918837" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.entity.MemberSecurity" target="com.hyeonuk.chatting.integ.entity.BaseEntity" relationship="GENERALIZATION">
+      <point x="-40.0" y="-14.5" />
+      <point x="374.0597168423269" y="-381.30168453292504" />
+      <point x="381.5842266462482" y="-381.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.integ.service.encrypt.ShaPasswordEncoder" target="com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder" relationship="REALIZATION">
+      <point x="0.0" y="-14.5" />
+      <point x="1034.993647969652" y="-609.947166921899" />
+      <point x="1320.4412527900392" y="-609.947166921899" />
+      <point x="42.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.control.MemberControlServiceImpl" target="com.hyeonuk.chatting.member.repository.MemberRepository" relationship="TO_ONE">
+      <point x="-78.33333333333331" y="-14.5" />
+      <point x="1535.7745861233727" y="-96.30168453292504" />
+      <point x="1399.1038344893857" y="-96.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.member.service.auth.MemberAuthService" relationship="REALIZATION">
+      <point x="-72.33333333333326" y="-14.5" />
+      <point x="1091.7745861233727" y="-96.30168453292504" />
+      <point x="758.3097168423269" y="-96.30168453292504" />
+      <point x="46.75" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.integ.config.AppConfig" target="com.hyeonuk.chatting.integ.interceptor.SessionInterceptor" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.controller.MemberAuthController" target="com.hyeonuk.chatting.member.dto.auth.LoginDto" relationship="CREATE">
+      <point x="-52.0" y="-14.5" />
+      <point x="496.7092266462482" y="-96.30168453292504" />
+      <point x="445.3342266462482" y="-96.30168453292504" />
+      <point x="445.3342266462482" y="-106.30168453292504" />
+      <point x="541.5597168423269" y="-106.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.entity.MemberSecurity" target="com.hyeonuk.chatting.member.entity.Member" relationship="TO_ONE">
+      <point x="40.0" y="-14.5" />
+      <point x="454.0597168423269" y="-300.30168453292504" />
+      <point x="438.0597168423269" y="-300.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.entity.Member" target="com.hyeonuk.chatting.member.entity.MemberSecurity" relationship="TO_ONE">
+      <point x="0.0" y="14.5" />
+      <point x="438.0597168423269" y="-300.30168453292504" />
+      <point x="454.0597168423269" y="-300.30168453292504" />
+      <point x="40.0" y="-14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.member.exception.auth.login.RestrictionException" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="1164.107919456706" y="-136.30168453292504" />
+      <point x="1646.0604462560934" y="-136.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.control.MemberControlServiceImpl" target="com.hyeonuk.chatting.member.exception.control.UserNotFoundException" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="1614.107919456706" y="-96.30168453292504" />
+      <point x="1621.6038344893857" y="-96.30168453292504" />
+      <point x="1621.6038344893857" y="-106.30168453292504" />
+      <point x="1766.8039741164462" y="-106.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.dto.auth.JoinDto" target="com.hyeonuk.chatting.member.entity.MemberSecurity" relationship="TO_ONE">
+      <point x="0.0" y="-14.5" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.control.MemberControlServiceImpl" target="com.hyeonuk.chatting.member.service.control.MemberControlService" relationship="REALIZATION">
+      <point x="78.33333333333331" y="-14.5" />
+      <point x="1692.4412527900392" y="-96.30168453292504" />
+      <point x="1871.4552893132754" y="-96.30168453292504" />
+      <point x="-51.75" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.member.repository.MemberRepository" relationship="TO_ONE">
+      <point x="72.33333333333326" y="-14.5" />
+      <point x="1236.4412527900392" y="-96.30168453292504" />
+      <point x="1399.1038344893857" y="-96.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.entity.Member" target="com.hyeonuk.chatting.integ.entity.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.5" />
+      <point x="438.0597168423269" y="-381.30168453292504" />
+      <point x="381.5842266462482" y="-381.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.controller.MemberAuthController" target="com.hyeonuk.chatting.member.dto.auth.JoinDto" relationship="CREATE">
+      <point x="-52.0" y="-14.5" />
+      <point x="496.7092266462482" y="-96.30168453292504" />
+      <point x="445.3342266462482" y="-96.30168453292504" />
+      <point x="445.3342266462482" y="-106.30168453292504" />
+      <point x="414.0597168423269" y="-106.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException" relationship="CREATE">
+      <point x="0.0" y="-14.5" />
+      <point x="1164.107919456706" y="-126.30168453292504" />
+      <point x="1988.5275575773958" y="-126.30168453292504" />
+      <point x="0.0" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.controller.MemberControlController" target="com.hyeonuk.chatting.member.service.control.MemberControlService" relationship="TO_ONE">
+      <point x="0.0" y="-14.5" />
+      <point x="2066.5577475502705" y="61.108728943338406" />
+      <point x="1974.9552893132754" y="61.108728943338406" />
+      <point x="51.75" y="14.5" />
+    </edge>
+    <edge source="com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl" target="com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder" relationship="TO_ONE">
+      <point x="72.33333333333326" y="-14.5" />
+      <point x="-42.0" y="14.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.8957475994513031" showDependencies="true" x="1326.8315467075038" y="-227.93491577335374" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
