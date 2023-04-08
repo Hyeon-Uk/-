@@ -7,6 +7,7 @@ import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
+import com.hyeonuk.chatting.member.exception.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -68,14 +70,15 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()-> new NotFoundException("해당하는 유저가 존재하지 않습니다."));
         //해당 유저의 blockedTime이 안지났다면 throw Exception
-//        if(member.getMemberSecurity().getBlockedTime().compareTo(LocalDateTime.now())>0){
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-//            String format = dateFormat.format(member.getMemberSecurity().getBlockedTime());
-//            throw new IllegalAccessException(format.concat(" 시까지 로그인이 불가능합니다."));
-//        }
+        if(member.getMemberSecurity().getBlockedTime()!= null && member.getMemberSecurity().getBlockedTime().compareTo(LocalDateTime.now())>0){
+            String format = member.getMemberSecurity().getBlockedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).concat(" 까지 로그인이 불가능합니다.");
+            throw new RestrictionException(format);
+        }
 
         String encoded = passwordEncoder.encode(dto.getPassword().concat(member.getMemberSecurity().getSalt()));
         if(!member.getPassword().equals(encoded)){
+            member.getMemberSecurity().updateTryCount();
+            memberRepository.save(member);
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 

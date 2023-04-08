@@ -5,6 +5,7 @@ import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
+import com.hyeonuk.chatting.member.exception.RestrictionException;
 import com.hyeonuk.chatting.member.service.auth.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -69,10 +70,9 @@ public class MemberAuthController {
             bindingResult.addError(new ObjectError("dto",userNotFoundException.getMessage()));
         }catch(IllegalArgumentException passwordNotMatchException){
             bindingResult.addError(new ObjectError("dto",passwordNotMatchException.getMessage()));
+        }catch(RestrictionException blockedTimeNotPassException){
+            bindingResult.addError(new ObjectError("dto",blockedTimeNotPassException.getMessage()));
         }
-//        catch(IllegalAccessException blockedTimeNotPassException){
-//            bindingResult.addError(new ObjectError("dto",blockedTimeNotPassException.getMessage()));
-//        }
 
         if(bindingResult.hasErrors()){
             return "auth/login";

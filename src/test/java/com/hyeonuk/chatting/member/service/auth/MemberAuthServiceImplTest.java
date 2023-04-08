@@ -1,12 +1,14 @@
-package com.hyeonuk.chatting.member.service;
+package com.hyeonuk.chatting.member.service.auth;
 
 import com.hyeonuk.chatting.integ.service.encrypt.PasswordEncoder;
 import com.hyeonuk.chatting.member.dto.auth.JoinDto;
 import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.exception.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.NotFoundException;
+import com.hyeonuk.chatting.member.exception.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import com.hyeonuk.chatting.member.service.auth.MemberAuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.format.datetime.DateFormatter;
 
 import java.util.Optional;
 
@@ -169,6 +172,11 @@ class MemberAuthServiceImplTest {
                     .email(loginDto.getEmail())
                     .nickname("test")
                     .password(passwordEncoder.encode(loginDto.getPassword()))
+                    .memberSecurity(
+                            MemberSecurity.builder()
+                                    .salt("salt")
+                                    .build()
+                    )
                     .build();
         }
 
@@ -198,16 +206,38 @@ class MemberAuthServiceImplTest {
             @Test
             @DisplayName("password not match Exception")
             public void passwordNotMatchExceptionTest(){
+                loginDto.setPassword("notMatches");
+                loginMember = Member.builder()
+                        .id(1l)
+                        .email(loginDto.getEmail())
+                        .nickname("test")
+                        .password("test")//비밀번호를 다르게 만들어야 하므로 일부로 안맞도록 변경
+                        .memberSecurity(
+                                MemberSecurity.builder()
+                                        .salt("salt")
+                                        .build()
+                        )
+                        .build();
                 //given
                 when(mockMemberRepository.findByEmail(any())).thenReturn(
-                        Optional.ofNullable(Member.builder()
-                                .password(loginMember.getPassword().concat("not matches"))
-                                .build())
+                        Optional.ofNullable(loginMember)
                 );
 
                 //when & then
                 String message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
                 assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
+                assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(1);//tryCount 1 증가
+
+                message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
+                assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
+                assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(2);//tryCount 2로 증가
+
+                message = assertThrows(IllegalArgumentException.class, () -> memberAuthService.login(loginDto)).getMessage();
+                assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
+                assertThat(loginMember.getMemberSecurity().getTryCount()).isEqualTo(0);//tryCount 3으로 증가하면 0으로 초기화 & blockTime 갱신
+                assertThat(loginMember.getMemberSecurity().getBlockedTime()).isNotNull();//blocked 갱신
+                
+                assertThrows(RestrictionException.class,()->memberAuthService.login(loginDto));//접근 제한
             }
             @Test
             @DisplayName("email not found Exception")

@@ -31,4 +31,12 @@ public class MemberSecurity extends BaseEntity {
     @Column(nullable = false)
     private String salt;//salt 해시값을 저장
 
+    
+    public void updateTryCount(){//시도횟수 1 증가, 3이되면 block상태로
+        this.tryCount++;
+        if(this.tryCount == 3){
+            this.tryCount=0;
+            blockedTime = LocalDateTime.now().plusMinutes(3);//3분동안 블락
+        }
+    }
 }
