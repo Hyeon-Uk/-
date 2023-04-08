@@ -12,8 +12,8 @@
 </head>
 <body>
   <form th:action th:method="post" th:object="${dto}">
-    Email : <input type="email" th:field="*{email}" th:errorclass="field-error"/><p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p><br>
-    Password : <input type="password" th:field="*{password}" th:errorclass="field-error"/><p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p><br>
+    Email : <input type="email" th:field="*{email}" th:errorclass="field-error"/><p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" required></p><br>
+    Password : <input type="password" th:field="*{password}" th:errorclass="field-error"/><p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" required></p><br>
       <p class = "field-error" th:each="error : ${#fields.globalErrors()}" th:text="${error}"></p>
     <input type="submit" value="로그인">
   </form>
