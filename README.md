@@ -17,6 +17,8 @@
 
 # 회원가입 Sequence
 
+※ 회원가입 시 email 추가 인증을 구현할 예정 ※
+
 1. 입력 값 validation
    - email : email형태여야하고 중복 불가
    - password & passwordCheck : 둘이 같아야함, 8자리이상, 20자리이하의 소문자,대문자,특수문자의 조합
