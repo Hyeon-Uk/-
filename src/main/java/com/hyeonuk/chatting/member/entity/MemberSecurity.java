@@ -39,4 +39,9 @@ public class MemberSecurity extends BaseEntity {
             blockedTime = LocalDateTime.now().plusMinutes(3);//3분동안 블락
         }
     }
+    
+    public void loginSuccess(){//로그인 성공시에
+        this.tryCount=0;//0으로 초기화
+        this.blockedTime=null;//Null로 초기화
+    }
 }
