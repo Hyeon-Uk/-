@@ -5,7 +5,4 @@ public class InfoNotMatchException extends RuntimeException{
         super(message);
     }
 
-    public InfoNotMatchException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

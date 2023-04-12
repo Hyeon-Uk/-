@@ -38,3 +38,6 @@ out/
 /src/main/resources/application-database.properties
 /src/test/resources/application-database.properties
 /src/test/resources/application-testdatabase.properties
+/src/main/resources/application-databaseLocal.properties
+/src/main/resources/application-mail.properties
+/htmlReport/

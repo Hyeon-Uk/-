@@ -2,6 +2,7 @@ package com.hyeonuk.chatting.member.dto.auth;
 
 
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -26,5 +27,5 @@ public class JoinDto{
     @NotBlank(message="닉네임을 입력해주세요")
     private String nickname;
 
-    MemberSecurity security;
+    private MemberSecurity security;
 }

@@ -8,7 +8,6 @@ import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
 import com.hyeonuk.chatting.member.exception.auth.login.InfoNotMatchException;
-import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
@@ -52,9 +51,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                         .build();
         dto.setPassword(encoded);//솔트를 적용하여 저장
         dto.setSecurity(security);
-        
         //이메일 발송
-        
         return this.entityToMemeberDto(memberRepository.save(this.joinDtoToEntity(dto)));
     }
 

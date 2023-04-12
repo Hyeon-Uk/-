@@ -9,7 +9,6 @@ import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.auth.join.PasswordNotMatchException;
 import com.hyeonuk.chatting.member.exception.auth.login.InfoNotMatchException;
-import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,6 +161,7 @@ class MemberAuthServiceImplTest {
     public class LoginTest{
         LoginDto loginDto;
         Member loginMember;
+        MemberSecurity security;
 
         @BeforeEach
         public void init(){
@@ -167,17 +169,25 @@ class MemberAuthServiceImplTest {
                     .email("test@gmail.com")
                     .password("test")
                     .build();
+            List<Member> friends = new ArrayList<>();
+            friends.add(Member.builder()
+                    .id(3L)
+                    .nickname("test3")
+                    .email("test3@gmail.com")
+                    .password("test3")
+                    .build());
             loginMember = Member.builder()
                     .id(1l)
                     .email(loginDto.getEmail())
                     .nickname("test")
                     .password(passwordEncoder.encode(loginDto.getPassword()))
-                    .memberSecurity(
-                            MemberSecurity.builder()
-                                    .salt("salt")
-                                    .build()
-                    )
+                    .friends(friends)
                     .build();
+            security = MemberSecurity.builder()
+                    .member(loginMember)
+                    .salt("salt")
+                    .build();
+            loginMember.memberSecurityInit(security);
         }
 
         @Nested

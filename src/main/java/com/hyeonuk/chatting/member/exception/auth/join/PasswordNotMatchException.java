@@ -5,7 +5,4 @@ public class PasswordNotMatchException extends RuntimeException{
         super(message);
     }
 
-    public PasswordNotMatchException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

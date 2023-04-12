@@ -5,7 +5,4 @@ public class RestrictionException extends RuntimeException{
         super(message);
     }
 
-    public RestrictionException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

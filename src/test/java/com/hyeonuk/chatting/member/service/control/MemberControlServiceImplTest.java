@@ -3,6 +3,7 @@ package com.hyeonuk.chatting.member.service.control;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.dto.control.MemberSearchDto;
 import com.hyeonuk.chatting.member.entity.Member;
+import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.exception.auth.join.AlreadyExistException;
 import com.hyeonuk.chatting.member.exception.control.UserNotFoundException;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
@@ -35,22 +36,18 @@ class MemberControlServiceImplTest {
     private MemberRepository repository;
 
     Member member1, member2, member3, member4;
+    MemberSecurity security1,security2,security3,security4;
 
     @BeforeEach
     public void init() {
-        member1 = Member.builder()
-                .id(1l)
-                .email("test1@gmail.com")
-                .password("test1")
-                .nickname("test1")
-                .build();
-
         member2 = Member.builder()
                 .id(2l)
                 .email("test2@gmail.com")
                 .password("test2")
                 .nickname("test2")
                 .build();
+
+
         member3 = Member.builder()
                 .id(3l)
                 .email("test3@gmail.com")
@@ -63,6 +60,39 @@ class MemberControlServiceImplTest {
                 .password("test4")
                 .nickname("test4")
                 .build();
+
+
+        member1 = Member.builder()
+                .id(1l)
+                .email("test1@gmail.com")
+                .password("test1")
+                .nickname("test1")
+                .build();
+
+        security1 = MemberSecurity.builder()
+                .salt("salt1")
+                .member(member1)
+                .build();
+
+        security2 = MemberSecurity.builder()
+                .salt("salt2")
+                .member(member2)
+                .build();
+
+        security3 = MemberSecurity.builder()
+                .salt("salt3")
+                .member(member3)
+                .build();
+
+        security4 = MemberSecurity.builder()
+                .salt("salt4")
+                .member(member4)
+                .build();
+
+        member1.memberSecurityInit(security1);
+        member2.memberSecurityInit(security2);
+        member3.memberSecurityInit(security3);
+        member4.memberSecurityInit(security4);
     }
 
     @Nested
@@ -109,6 +139,9 @@ class MemberControlServiceImplTest {
 
                 assertThat(member.getFriends().size()).isEqualTo(2);
                 assertThat(member.getFriends()).contains(target3);
+
+                MemberDto byId = memberControlService.findById(memberId);
+                assertThat(byId.getFriends().size()).isEqualTo(2);
             }
         }
 
@@ -257,6 +290,38 @@ class MemberControlServiceImplTest {
                         .nickname("unknown").build());
 
                 assertThat(unknown).size().isEqualTo(0);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Find ById Test")
+    public class FindById{
+        @Nested
+        @DisplayName("success")
+        public class Success{
+            @Test
+            public void findByIdSuccessTest(){
+                when(repository.findById(anyLong())).thenReturn(Optional.ofNullable(member1));
+
+                //then
+                MemberDto member1Dto = memberControlService.findById(member1.getId());
+                assertThat(member1Dto.getId()).isEqualTo(member1.getId());
+                assertThat(member1Dto.getNickname()).isEqualTo(member1.getNickname());
+                assertThat(member1Dto.getEmail()).isEqualTo(member1.getEmail());
+            }
+        }
+
+        @Nested
+        @DisplayName("failure")
+        public class Failure{
+            @Test
+            @DisplayName("Not Found Member ById")
+            public void findByIdNotFoundUserTest(){
+                when(repository.findById(anyLong())).thenReturn(Optional.ofNullable(null));
+
+                //then
+                assertThrows(UserNotFoundException.class,()->memberControlService.findById(Long.MAX_VALUE));
             }
         }
     }

@@ -13,10 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.naming.Binding;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,10 +58,17 @@ class MemberAuthControllerTest {
             @Test
             @DisplayName("join page success")
             public void joinPageLoadingSuccessTest() throws Exception {
-                mvc.perform(get("/auth/join"))
+                MvcResult mvcResult1 = mvc.perform(get("/auth/join"))
                         .andDo(print())
-                        .andExpect(status().isOk());
+                        .andExpect(status().isOk())
+                        .andExpect(view().name("auth/join"))
+                        .andExpect(model().attributeExists("dto"))
+                        .andReturn();
+            }
 
+            @Test
+            @DisplayName("join Process Success")
+            public void joinProcessSuccessTest() throws Exception {
                 JoinDto dto = JoinDto.builder()
                         .email("a@gmail.com")
                         .password("test")
@@ -65,11 +76,13 @@ class MemberAuthControllerTest {
                         .nickname("testuser")
                         .build();
                 MultiValueMap multiValueMap = convertToMultiValueMap(dto);
-                mvc.perform(post("/auth/join")
+                MvcResult mvcResult = mvc.perform(post("/auth/join")
                                 .params(multiValueMap))
                         .andDo(print())
                         .andExpect(status().is3xxRedirection())
-                        .andExpect(redirectedUrl("/auth/login"));
+                        .andExpect(redirectedUrl("/auth/login"))
+                        .andExpect(view().name("redirect:/auth/login"))
+                        .andReturn();
 
                 assertThat(memberRepository.findAll().size()).isEqualTo(1);
             }
@@ -111,7 +124,9 @@ class MemberAuthControllerTest {
                 MultiValueMap<String,String> params = convertToMultiValueMap(emailDuplicatedExceptionDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
-                        .andExpect(status().isOk());
+                        .andExpect(status().isOk())
+                        .andExpect(model().hasErrors())
+                        .andExpect(model().attributeExists("dto"));
 
                 assertThat(memberRepository.findAll().size()).isEqualTo(beforeSize);
             }
