@@ -11,6 +11,7 @@ import com.hyeonuk.chatting.member.exception.auth.login.RestrictionException;
 import com.hyeonuk.chatting.member.service.auth.MemberAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,9 @@ public class MemberAuthController {
 
     @PostMapping("/join")
     public String joinProc(@Validated @ModelAttribute("dto") JoinDto dto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            return "auth/join";
+        }
         try {
             authService.save(dto);
         } catch (PasswordNotMatchException | AlreadyExistException exception) {

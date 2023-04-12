@@ -20,7 +20,7 @@ public class JoinDto{
     private String email;
     
     @NotBlank(message="비밀번호를 입력해주세요")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[a-zA-Z\\d!@#$%^&*()_+]{8,20}$\n",message ="8자리이상, 20자리이하의 소문자,대문자,특수문자의 조합으로 만들어주세요")//8자리이상, 20자리이하의 소문자,대문자,특수문자의 조합
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?\":{}|<>])(?!.*\\s).{8,20}$",message ="8자리이상, 20자리이하의 소문자,대문자,특수문자의 조합으로 만들어주세요")//8자리이상, 20자리이하의 소문자,대문자,특수문자의 조합
     private String password;
     @NotBlank(message="비밀번호확인을 입력해주세요")
     private String passwordCheck;
