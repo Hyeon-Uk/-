@@ -10,7 +10,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class SessionInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("session Interceptor called");
         if(request.getSession().getAttribute("member")==null ){
             response.sendRedirect("/auth/login");
             return false;

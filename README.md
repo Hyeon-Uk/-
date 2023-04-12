@@ -1,4 +1,7 @@
 # 연습용 레포지토리
+# Test Coverage
+![img.png](resource/coverage.png)
+
 
 # Entity Relationship Diagram(현재까지)
 ![img.png](resource/img.png)
