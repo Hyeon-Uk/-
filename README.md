@@ -1,6 +1,7 @@
 # 연습용 레포지토리
 # Test Coverage
-![img.png](resource/coverage.png)
+![image](https://user-images.githubusercontent.com/43038815/231701548-436e779d-a2a8-452f-84fc-360ad4e495f6.png)
+
 
 
 # Entity Relationship Diagram(현재까지)

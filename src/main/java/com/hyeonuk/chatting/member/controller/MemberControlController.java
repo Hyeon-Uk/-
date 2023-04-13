@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,10 @@ public class MemberControlController {
     * */
     @ResponseBody
     @GetMapping
-    public ResponseEntity<ApiUtils.ApiResult<List<MemberDto>>> findMemberByNickname(@Validated MemberSearchDto dto) {
+    public ResponseEntity<ApiUtils.ApiResult<List<MemberDto>>> findMemberByNickname(@Validated MemberSearchDto dto, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            throw new IllegalArgumentException(bindingResult.getFieldError().getDefaultMessage());
+        }
         return ApiUtils.success(memberControlService.findAllByNickname(dto),HttpStatus.OK);
     }
 
@@ -36,7 +40,6 @@ public class MemberControlController {
     @PostMapping
     public ResponseEntity<ApiUtils.ApiResult<Boolean>> addMember(@SessionAttribute("member")MemberDto member, @RequestBody FriendAddDto dto){
         memberControlService.addFriend(member,MemberDto.builder().id(dto.getId()).build());
-//        return new ResponseEntity<>(true,HttpStatus.OK);
         return ApiUtils.success(true,HttpStatus.OK);
     }
 }

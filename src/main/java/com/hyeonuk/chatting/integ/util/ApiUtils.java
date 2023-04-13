@@ -13,8 +13,8 @@ public class ApiUtils{
         return new ApiResult<>(false,null,new ApiError(throwable,status));
     }
 
-    public static ApiResult<?> error(String message,HttpStatus status){
-        return new ApiResult<>(false,null,new ApiError(message,status));
+    public static ResponseEntity<ApiResult<?>> error(String message,HttpStatus status){
+        return new ResponseEntity<>(new ApiResult<>(false,null,new ApiError(message,status)),status);
     }
 
     @Getter
