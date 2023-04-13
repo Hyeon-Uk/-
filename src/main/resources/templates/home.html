@@ -6,7 +6,9 @@
   </head>
   <body>
     안녕하세요 <span th:text="${member.nickname}"></span> 님!
-    <a href="/auth/logout">로그아웃</a>
+    <form th:action="@{/auth/logout}" action="/auth/logout" method="post" th:method="post">
+      <input type="submit" value="로그아웃">
+    </form>
     <div id="friends-search">
       <div>유저 찾기</div>
       이름 검색<input type="text" id="friend-search-nickname" />

@@ -8,6 +8,7 @@ import com.hyeonuk.chatting.member.dto.auth.LoginDto;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +28,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.naming.Binding;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -47,11 +52,13 @@ class MemberAuthControllerTest {
 
     MultiValueMap<String, String> convertToMultiValueMap(Object obj) {
         MultiValueMap parameters = new LinkedMultiValueMap<String, String>();
-        Map<String, String> maps = mapper.convertValue(obj, new TypeReference<Map<String, String>>() {});
+        Map<String, String> maps = mapper.convertValue(obj, new TypeReference<Map<String, String>>() {
+        });
         parameters.setAll(maps);
 
         return parameters;
     }
+
     @Nested
     @DisplayName("Join Test")
     class JoinTest {
@@ -96,6 +103,7 @@ class MemberAuthControllerTest {
         @DisplayName("failure")
         class FailureTest {
             JoinDto dto;
+
             @BeforeEach
             public void init() throws Exception {
                 dto = JoinDto.builder()
@@ -105,13 +113,14 @@ class MemberAuthControllerTest {
                         .nickname("testUser")
                         .build();
 
-                MultiValueMap<String,String> params = convertToMultiValueMap(dto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(dto);
 
                 //기본 유저 가입
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().is3xxRedirection());
             }
+
             @Test
             @DisplayName("Email DuplicatedException")
             public void emailDuplicatedExceptionTest() throws Exception {
@@ -124,7 +133,7 @@ class MemberAuthControllerTest {
 
                 int beforeSize = memberRepository.findAll().size();
                 //중복유저 가입
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailDuplicatedExceptionDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailDuplicatedExceptionDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
@@ -144,13 +153,13 @@ class MemberAuthControllerTest {
                         .nickname("testUser2")
                         .build();
                 //빈칸의 이메일 가입
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailBlankDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailBlankDto);
                 mvc.perform(post("/auth/join")
                                 .params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","email"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "email"))
                         .andExpect(view().name("auth/join"));
 
                 emailBlankDto = JoinDto.builder()
@@ -166,7 +175,7 @@ class MemberAuthControllerTest {
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","email"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "email"))
                         .andExpect(view().name("auth/join"));
             }
 
@@ -181,11 +190,11 @@ class MemberAuthControllerTest {
                         .build();
 
                 //이메일 타입이 아닌것
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailNotMatchDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailNotMatchDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
-                        .andExpect(model().attributeHasFieldErrors("dto","email"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "email"))
                         .andExpect(view().name("auth/join"));
             }
 
@@ -197,13 +206,13 @@ class MemberAuthControllerTest {
                         .nickname("testUser2")
                         .build();
                 //빈칸의 이메일 가입
-                MultiValueMap<String,String> params = convertToMultiValueMap(passwordBlankDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(passwordBlankDto);
                 mvc.perform(post("/auth/join")
                                 .params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","password"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "password"))
                         .andExpect(view().name("auth/join"));
 
                 passwordBlankDto = JoinDto.builder()
@@ -219,7 +228,7 @@ class MemberAuthControllerTest {
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","password"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "password"))
                         .andExpect(view().name("auth/join"));
             }
 
@@ -234,7 +243,7 @@ class MemberAuthControllerTest {
                         .build();
 
                 //비밀번호 일치 x
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailNotMatchDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailNotMatchDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
@@ -253,11 +262,11 @@ class MemberAuthControllerTest {
                         .build();
 
                 //비밀번호 패턴 일치 x
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailNotMatchDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailNotMatchDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
-                        .andExpect(model().attributeHasFieldErrors("dto","password"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "password"))
                         .andExpect(view().name("auth/join"));
             }
 
@@ -270,13 +279,13 @@ class MemberAuthControllerTest {
                         .passwordCheck("testABC123!")
                         .build();
                 //빈칸의 이메일 가입
-                MultiValueMap<String,String> params = convertToMultiValueMap(nicknameBlankDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(nicknameBlankDto);
                 mvc.perform(post("/auth/join")
                                 .params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","nickname"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "nickname"))
                         .andExpect(view().name("auth/join"));
 
                 nicknameBlankDto = JoinDto.builder()
@@ -292,7 +301,7 @@ class MemberAuthControllerTest {
                         .andDo(print())
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","nickname"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "nickname"))
                         .andExpect(view().name("auth/join"));
             }
 
@@ -308,7 +317,7 @@ class MemberAuthControllerTest {
 
                 int beforeSize = memberRepository.findAll().size();
                 //중복유저 가입
-                MultiValueMap<String,String> params = convertToMultiValueMap(emailDuplicatedExceptionDto);
+                MultiValueMap<String, String> params = convertToMultiValueMap(emailDuplicatedExceptionDto);
                 mvc.perform(post("/auth/join").params(params))
                         .andDo(print())
                         .andExpect(status().isOk())
@@ -323,12 +332,13 @@ class MemberAuthControllerTest {
 
     @Nested
     @DisplayName("Login Test")
-    public class LoginTest{
+    public class LoginTest {
         JoinDto dto;
+
         //회원가입을 미리 해둠
         @BeforeEach
         public void init() throws Exception {
-            dto  = JoinDto.builder()
+            dto = JoinDto.builder()
                     .email("test@gmail.com")
                     .password("abcdABCDE123!")
                     .passwordCheck("abcdABCDE123!")
@@ -338,12 +348,13 @@ class MemberAuthControllerTest {
             mvc.perform(post("/auth/join")
                     .params(convertToMultiValueMap(dto)));
         }
+
         @Nested
         @DisplayName("success test")
-        public class Success{
+        public class Success {
             @Test
             @DisplayName("login page success")
-            public void loginPageSuccessTest() throws Exception{
+            public void loginPageSuccessTest() throws Exception {
                 mvc.perform(get("/auth/login"))
                         .andExpect(status().isOk())
                         .andExpect(model().attributeExists("dto"))
@@ -352,11 +363,11 @@ class MemberAuthControllerTest {
 
             @Test
             @DisplayName("login process success")
-            public void loginProcSuccessTest() throws Exception{
+            public void loginProcSuccessTest() throws Exception {
                 LoginDto loginDto = LoginDto.builder()
-                                .email(dto.getEmail())
-                                .password(dto.getPassword())
-                                .build();
+                        .email(dto.getEmail())
+                        .password(dto.getPassword())
+                        .build();
                 MvcResult mvcResult = mvc.perform(post("/auth/login")
                                 .params(convertToMultiValueMap(loginDto)))
                         .andExpect(status().is3xxRedirection())
@@ -373,10 +384,10 @@ class MemberAuthControllerTest {
 
         @Nested
         @DisplayName("failure test")
-        public class Failure{
+        public class Failure {
             @Test
             @DisplayName("email blank exception test")
-            public void emailBlankExceptionTest() throws Exception{
+            public void emailBlankExceptionTest() throws Exception {
                 LoginDto loginDto = LoginDto.builder()
                         .password(dto.getPassword())
                         .build();
@@ -384,7 +395,7 @@ class MemberAuthControllerTest {
                 mvc.perform(post("/auth/login").params(convertToMultiValueMap(loginDto)))
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","email"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "email"))
                         .andExpect(view().name("auth/login"))
                         .andDo(print());
 
@@ -396,14 +407,14 @@ class MemberAuthControllerTest {
                 mvc.perform(post("/auth/login").params(convertToMultiValueMap(loginDto)))
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","email"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "email"))
                         .andExpect(view().name("auth/login"))
                         .andDo(print());
             }
 
             @Test
             @DisplayName("password blank exception test")
-            public void passwordBlankExceptionTest() throws Exception{
+            public void passwordBlankExceptionTest() throws Exception {
                 LoginDto loginDto = LoginDto.builder()
                         .email(dto.getEmail())
                         .build();
@@ -411,7 +422,7 @@ class MemberAuthControllerTest {
                 mvc.perform(post("/auth/login").params(convertToMultiValueMap(loginDto)))
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","password"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "password"))
                         .andExpect(view().name("auth/login"))
                         .andDo(print());
 
@@ -423,14 +434,14 @@ class MemberAuthControllerTest {
                 mvc.perform(post("/auth/login").params(convertToMultiValueMap(loginDto)))
                         .andExpect(status().isOk())
                         .andExpect(model().hasErrors())
-                        .andExpect(model().attributeHasFieldErrors("dto","password"))
+                        .andExpect(model().attributeHasFieldErrors("dto", "password"))
                         .andExpect(view().name("auth/login"))
                         .andDo(print());
             }
 
             @Test
             @DisplayName("email not match exception")
-            public void emailNotMatchExceptionTest() throws Exception{
+            public void emailNotMatchExceptionTest() throws Exception {
                 LoginDto loginDto = LoginDto.builder()
                         .email("notExist@gmail.com")
                         .password("notExistPassword!")
@@ -446,7 +457,7 @@ class MemberAuthControllerTest {
 
             @Test
             @DisplayName("password not match exception")
-            public void passwordNotMatchExceptionTest() throws Exception{
+            public void passwordNotMatchExceptionTest() throws Exception {
                 LoginDto loginDto = LoginDto.builder()
                         .email(dto.getEmail())
                         .password("notExistPassword!")
@@ -462,4 +473,65 @@ class MemberAuthControllerTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("Logout Test")
+    class LogoutTest {
+        LoginDto loginDto;
+        JoinDto joinDto;
+
+        @BeforeEach
+        public void init() throws Exception {
+            joinDto = JoinDto.builder()
+                    .email("test@gmail.com")
+                    .password("testTEST123!")
+                    .passwordCheck("testTEST123!")
+                    .nickname("tester")
+                    .build();
+
+            loginDto = LoginDto.builder()
+                    .email(joinDto.getEmail())
+                    .password(joinDto.getPassword())
+                    .build();
+
+            mvc.perform(post("/auth/join").params(convertToMultiValueMap(joinDto)));//가입
+        }
+
+
+        @Nested
+        @DisplayName("success Test")
+        public class SuccessTest {
+            @Test
+            @DisplayName("logout success")
+            public void logoutSuccessTest() throws Exception{
+                // Given
+                // 로그인 세션 설정
+                MemberDto memberDto = MemberDto.builder()
+                                .email("test@example.com")
+                                .build();
+
+                // When
+                MvcResult mvcResult = mvc.perform(post("/auth/logout").sessionAttr("member",memberDto))
+                        .andExpect(redirectedUrl("/auth/login"))
+                        .andReturn();
+
+                //then
+                HttpSession logoutSession = mvcResult.getRequest().getSession(false);
+                assertThat(logoutSession).isNull();
+            }
+        }
+
+        @Nested
+        @DisplayName("failure Test")
+        public class FailureTest {
+            @Test
+            @DisplayName("if unknown user access logout")
+            public void unknownUserLogout() throws Exception{
+                //아무것도 수행하지 않고 넘어감.
+                //이 부분에 대해서 보안적인 처리 필요
+                MvcResult mvcResult = mvc.perform(post("/auth/logout"))
+                        .andReturn();
+            }
+        }
+    }
 }
