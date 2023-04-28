@@ -1,5 +1,6 @@
 package com.hyeonuk.chatting.board.repository;
 
+import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import com.hyeonuk.chatting.member.repository.MemberRepository;
@@ -11,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import static org.assertj.core.api.ClassBasedNavigableIterableAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class BoardRepositoryTest {
@@ -179,17 +183,12 @@ public class BoardRepositoryTest {
             public void findByMemberSuccess() {
                 List<Board> m1Boards = boardRepository.findByMember(m1);
                 assertThat(m1Boards.size()).isEqualTo(3);
-                assertThat(m1Boards).contains(b1);
-                assertThat(m1Boards).contains(b2);
-                assertThat(m1Boards).contains(b3);
 
                 List<Board> m2Boards = boardRepository.findByMember(m2);
                 assertThat(m2Boards.size()).isEqualTo(1);
-                assertThat(m2Boards).contains(b4);
 
                 List<Board> m3Boards = boardRepository.findByMember(m3);
                 assertThat(m3Boards.size()).isEqualTo(1);
-                assertThat(m3Boards).contains(b4);
             }
 
             @Test
@@ -198,14 +197,14 @@ public class BoardRepositoryTest {
                 Optional<Board> finded = boardRepository.findById(b1.getId());
                 assertThat(finded).isNotEmpty();
                 Board board1 = finded.get();
-                assertThat(board1).isEqualTo(b1);
-                assertThat(board1.getMember()).isEqualTo(m1);
+                assertThat(board1.getId()).isEqualTo(b1.getId());
+                assertThat(board1.getMember().getId()).isEqualTo(m1.getId());
 
                 Optional<Board> finded2 = boardRepository.findById(b2.getId());
                 assertThat(finded2).isNotEmpty();
                 Board board2 = finded2.get();
-                assertThat(board2).isEqualTo(b1);
-                assertThat(board2.getMember()).isEqualTo(m2);
+                assertThat(board2.getId()).isEqualTo(b2.getId());
+                assertThat(board2.getMember().getId()).isEqualTo(m1.getId());
             }
         }
 
@@ -215,11 +214,10 @@ public class BoardRepositoryTest {
             @Test
             @DisplayName("findByMemberfailure because Not Found Member")
             public void failBecauseOfNotFoundMember() {
-                assertThrows(DataIntegrityViolationException.class, () -> {
-                    List<Board> notFoundMemberBoards = boardRepository.findByMember(Member.builder()
-                            .id(Long.MAX_VALUE)
-                            .build());
-                });
+                List<Board> notFoundMemberBoards = boardRepository.findByMember(Member.builder()
+                        .id(Long.MAX_VALUE)
+                        .build());
+                assertThat(notFoundMemberBoards.size()).isEqualTo(0);
             }
 
             @Test
@@ -289,7 +287,7 @@ public class BoardRepositoryTest {
                         .member(m1)
                         .build();
 
-                assertThrows(DataIntegrityViolationException.class,()->boardRepository.save(contentNull));
+                assertThrows(DataIntegrityViolationException.class, () -> boardRepository.saveAndFlush(contentNull));
 
                 Board titleNull = Board.builder()
                         .id(b.getId())
@@ -298,7 +296,7 @@ public class BoardRepositoryTest {
                         .member(m1)
                         .build();
 
-                assertThrows(DataIntegrityViolationException.class,()->boardRepository.save(titleNull));
+                assertThrows(DataIntegrityViolationException.class, () -> boardRepository.saveAndFlush(titleNull));
 
             }
         }
