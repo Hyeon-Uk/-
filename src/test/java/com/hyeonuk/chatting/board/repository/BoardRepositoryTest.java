@@ -11,7 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,9 +143,11 @@ public class BoardRepositoryTest {
     @DisplayName("find Test")
     public class FindTest {
         Board b1, b2, b3, b4, b5;
+        List<Board> boardList;
 
         @BeforeEach
         public void init() {
+            boardList= new ArrayList<>();
             b1 = Board.builder()
                     .title("title1")
                     .content("content1")
@@ -167,17 +174,41 @@ public class BoardRepositoryTest {
                     .content("content5")
                     .member(m3)
                     .build();
+            boardList.add(b1);
+            boardList.add(b2);
+            boardList.add(b3);
+            boardList.add(b4);
+            boardList.add(b5);
 
-            boardRepository.save(b1);
-            boardRepository.save(b2);
-            boardRepository.save(b3);
-            boardRepository.save(b4);
-            boardRepository.save(b5);
+            boardRepository.saveAll(boardList);
         }
 
         @Nested
         @DisplayName("success")
         public class Success {
+            @Test
+            @DisplayName("findAllTest")
+            public void findAllSuccess(){
+                List<Board> all = boardRepository.findAll();
+                assertThat(all.size()).isEqualTo(5);
+            }
+
+            @Test
+            @DisplayName("findAllByPageable Success")
+            public void findAllByPageableSuccess(){
+                int page = 0;
+                int size = 2;
+                int totalPage = (int)Math.ceil(boardList.size()/(double)size);
+                Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
+
+                Page<Board> all = boardRepository.findAll(pageable);
+                assertThat(all.getTotalElements()).isEqualTo(boardList.size());
+                assertThat(all.getTotalPages()).isEqualTo(totalPage);
+                assertThat(all.hasPrevious()).isEqualTo(page!=0);
+                assertThat(all.hasNext()).isEqualTo(page != totalPage);
+
+            }
+
             @Test
             @DisplayName("findByMemberSuccess")
             public void findByMemberSuccess() {
