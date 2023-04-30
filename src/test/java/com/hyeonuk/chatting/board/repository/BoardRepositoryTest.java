@@ -223,6 +223,39 @@ public class BoardRepositoryTest {
             }
 
             @Test
+            @DisplayName("findByMember With Pageable")
+            public void findByMemberWithPageableSuccess(){
+                int size = 2;
+                int page = 0;
+
+                Pageable pageable = PageRequest.of(page,size);
+                Page<Board> m1Boards = boardRepository.findByMember(m1,pageable);
+
+                assertThat(m1Boards.hasNext()).isEqualTo(true);
+                assertThat(m1Boards.hasPrevious()).isEqualTo(false);
+                assertThat(m1Boards.getContent().size()).isEqualTo(2);
+
+                size = 2;
+                page = 1;
+                pageable = PageRequest.of(page,size);
+                m1Boards = boardRepository.findByMember(m1,pageable);
+
+                assertThat(m1Boards.hasNext()).isEqualTo(false);
+                assertThat(m1Boards.hasPrevious()).isEqualTo(true);
+                assertThat(m1Boards.getContent().size()).isEqualTo(1);
+
+                size = 2;
+                page = 2;
+                pageable = PageRequest.of(page,size);
+                m1Boards = boardRepository.findByMember(m1,pageable);
+
+                assertThat(m1Boards.hasNext()).isEqualTo(false);
+                assertThat(m1Boards.hasPrevious()).isEqualTo(true);
+                assertThat(m1Boards.getContent().size()).isEqualTo(0);
+
+            }
+
+            @Test
             @DisplayName("findByBoardId Success")
             public void findByIdSuccess() {
                 Optional<Board> finded = boardRepository.findById(b1.getId());
