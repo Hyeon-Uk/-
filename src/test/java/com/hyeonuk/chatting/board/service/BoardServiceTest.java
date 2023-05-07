@@ -39,42 +39,42 @@ class BoardServiceTest {
     List<Board> boardList;
 
     @BeforeEach
-    public void init(){
+    public void init() {
         memberList = new ArrayList<>();
         boardList = new ArrayList<>();
 
-        for(int i=0;i<4;i++){
+        for (int i = 0; i < 4; i++) {
             memberList.add(Member.builder()
                     .id(Integer.toUnsignedLong(i))
-                    .email(String.format("test%d@gmail.com",i))
-                    .password(String.format("test%d",i))
-                    .nickname(String.format("test%d",i))
+                    .email(String.format("test%d@gmail.com", i))
+                    .password(String.format("test%d", i))
+                    .nickname(String.format("test%d", i))
                     .memberSecurity(MemberSecurity.builder()
                             .salt("salt")
                             .build())
                     .build());
         }
 
-        for(int i=0;i<50;i++){
+        for (int i = 0; i < 55; i++) {
             boardList.add(Board.builder()
                     .id(Integer.toUnsignedLong(i))
-                    .title(String.format("title%d",i))
-                    .content(String.format("content%d",i))
+                    .title(String.format("title%d", i))
+                    .content(String.format("content%d", i))
                     .hit(0)
-                    .member(memberList.get(i%memberList.size()))
+                    .member(memberList.get(i % memberList.size()))
                     .build());
         }
     }
 
     @Nested
     @DisplayName("findAll Test")
-    public class FindAllTests{
+    public class FindAllTests {
         @Nested
         @DisplayName("success case")
-        class Success{
+        class Success {
             @Test
             @DisplayName("findAll success")
-            public void findAllSuccessTest(){
+            public void findAllSuccessTest() {
                 when(boardRepository.findAll()).thenReturn(boardList);
 
                 //when
@@ -88,17 +88,17 @@ class BoardServiceTest {
 
             @Test
             @DisplayName("findAll with Pageable success")
-            public void findAllWithPageableSuccess(){
+            public void findAllWithPageableSuccess() {
                 int page = 0;
                 int size = 10;
                 //given
-                Pageable pageable = PageRequest.of(page,size, Sort.by("created_at").descending());
-                Page<Board> mockResult =new PageImpl<Board>(boardList.stream().sorted(new Comparator<Board>() {
+                Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+                Page<Board> mockResult = new PageImpl<Board>(boardList.stream().sorted(new Comparator<Board>() {
                     @Override
                     public int compare(Board o1, Board o2) {
-                        return Long.compare(o2.getId(),o1.getId());
+                        return Long.compare(o2.getId(), o1.getId());
                     }
-                }).limit(size).collect(Collectors.toList()),pageable,boardList.size());
+                }).limit(size).collect(Collectors.toList()), pageable, boardList.size());
                 when(boardRepository.findAll(pageable)).thenReturn(mockResult);
 
                 //when
@@ -112,37 +112,129 @@ class BoardServiceTest {
                 assertThat(result.isNext()).isTrue();
                 assertThat(result.isPrev()).isFalse();
 
-                for(int i=0;i<10;i++) {
+                for (int i = 0; i < 10; i++) {
                     assertThat(result.getContents().get(i).getId()).isEqualTo(boardList.get(boardList.size() - 1 - i).getId());
                 }
             }
 
             @Test
             @DisplayName("findAllByMemberId")
-            public void findAllByMemberIdSuccess(){
+            public void findAllByMemberIdSuccess() {
                 when(boardRepository.findByMember(any()))
                         .thenReturn(
                                 boardList
                                         .stream()
-                                        .filter(b->b.getMember().getId()==memberList.get(0).getId())
+                                        .filter(b -> b.getMember().getId() == memberList.get(0).getId())
                                         .collect(Collectors.toList()));
 
                 //when
                 BoardListDto all = boardService.findAll(memberList.get(0).getId());
                 //then
                 assertThat(all.getContents().size()).isEqualTo(boardList
-                                .stream().filter(b->b.getMember().getId()==memberList.get(0).getId())
-                                .collect(Collectors.toList())
+                        .stream().filter(b -> b.getMember().getId() == memberList.get(0).getId())
+                        .collect(Collectors.toList())
                         .size());
                 assertThat(all.isPrev()).isFalse();
                 assertThat(all.isNext()).isFalse();
+            }
+
+            @Test
+            @DisplayName("findAllByMemberId With PageRequestDto")
+            public void findAllByMemberIdWithPageRequestDtoSuccess() {
+                int page = 0;
+                int size = 10;
+                PageRequestDto pageRequestDto = PageRequestDto.builder()
+                        .page(page)
+                        .size(size)
+                        .build();
+
+                //given
+                Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+                Page<Board> mockResult = new PageImpl<Board>(boardList.stream()
+                        .filter(b->b.getMember().getId()==memberList.get(0).getId()).sorted(new Comparator<Board>() {
+                    @Override
+                    public int compare(Board o1, Board o2) {
+                        return Long.compare(o2.getId(), o1.getId());
+                    }
+                }).limit(size).collect(Collectors.toList()), pageable, boardList.size());
+                when(boardRepository.findByMember(any(),any()))
+                        .thenReturn(mockResult);
+
+
+
+                BoardListDto all = boardService.findAll(memberList.get(0).getId(), pageRequestDto);
+
+                assertThat(all.getContents().size()).isEqualTo(size);
+                assertThat(all.isPrev()).isFalse();
+                assertThat(all.isNext()).isTrue();
             }
         }
 
         @Nested
         @DisplayName("failure case")
-        class Failure{
+        class Failure {
+            @Test
+            @DisplayName("findAll with Pageable failure without content")
+            public void findAllWithPageableSuccess() {
+                int page = boardList.size()/10 + 1;
+                int size = 10;
+                //given
+                Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+                Page<Board> mockResult = new PageImpl<Board>(new ArrayList<Board>(), pageable, boardList.size());
+                when(boardRepository.findAll(pageable)).thenReturn(mockResult);
 
+                //when
+                BoardListDto result = boardService.findAll(PageRequestDto.builder()
+                        .size(size)
+                        .page(page)
+                        .build());
+
+                //then
+                assertThat(result.getContents().size()).isEqualTo(0);
+                assertThat(result.isNext()).isFalse();
+                assertThat(result.isPrev()).isTrue();
+            }
+
+            @Test
+            @DisplayName("findAllByMemberId failure")
+            public void findAllByMemberIdFail() {
+                when(boardRepository.findByMember(any()))
+                        .thenReturn(
+                                boardList
+                                        .stream()
+                                        .filter(b -> b.getMember().getId() == Long.MAX_VALUE)
+                                        .collect(Collectors.toList()));
+
+                //when
+                BoardListDto all = boardService.findAll(memberList.get(0).getId());
+                //then
+                assertThat(all.getContents().size()).isEqualTo(0);
+                assertThat(all.isPrev()).isFalse();
+                assertThat(all.isNext()).isFalse();
+            }
+
+            @Test
+            @DisplayName("findAllByMemberId With PageRequestDto failure without content")
+            public void findAllByMemberIdWithPageRequestDtoFail() {
+                int page = boardList.size()/10 + 1;
+                int size = 10;
+                PageRequestDto pageRequestDto = PageRequestDto.builder()
+                        .page(page)
+                        .size(size)
+                        .build();
+
+                //given
+                Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+                Page<Board> mockResult = new PageImpl<Board>(new ArrayList<>(), pageable, boardList.size());
+                when(boardRepository.findByMember(any(),any()))
+                        .thenReturn(mockResult);
+
+                BoardListDto all = boardService.findAll(memberList.get(0).getId(), pageRequestDto);
+
+                assertThat(all.getContents().size()).isEqualTo(0);
+                assertThat(all.isPrev()).isFalse();
+                assertThat(all.isNext()).isTrue();
+            }
         }
     }
 }
