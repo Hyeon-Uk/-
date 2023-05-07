@@ -1,6 +1,8 @@
 package com.hyeonuk.chatting.board.service;
 
+import com.hyeonuk.chatting.board.dto.BoardDto;
 import com.hyeonuk.chatting.board.dto.BoardListDto;
+import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
@@ -57,7 +60,7 @@ class BoardServiceTest {
 
         for (int i = 0; i < 55; i++) {
             boardList.add(Board.builder()
-                    .id(Integer.toUnsignedLong(i))
+                    .id(Integer.toUnsignedLong(i + 1))
                     .title(String.format("title%d", i))
                     .content(String.format("content%d", i))
                     .hit(0)
@@ -151,15 +154,14 @@ class BoardServiceTest {
                 //given
                 Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
                 Page<Board> mockResult = new PageImpl<Board>(boardList.stream()
-                        .filter(b->b.getMember().getId()==memberList.get(0).getId()).sorted(new Comparator<Board>() {
-                    @Override
-                    public int compare(Board o1, Board o2) {
-                        return Long.compare(o2.getId(), o1.getId());
-                    }
-                }).limit(size).collect(Collectors.toList()), pageable, boardList.size());
-                when(boardRepository.findByMember(any(),any()))
+                        .filter(b -> b.getMember().getId() == memberList.get(0).getId()).sorted(new Comparator<Board>() {
+                            @Override
+                            public int compare(Board o1, Board o2) {
+                                return Long.compare(o2.getId(), o1.getId());
+                            }
+                        }).limit(size).collect(Collectors.toList()), pageable, boardList.size());
+                when(boardRepository.findByMember(any(), any()))
                         .thenReturn(mockResult);
-
 
 
                 BoardListDto all = boardService.findAll(memberList.get(0).getId(), pageRequestDto);
@@ -176,7 +178,7 @@ class BoardServiceTest {
             @Test
             @DisplayName("findAll with Pageable failure without content")
             public void findAllWithPageableSuccess() {
-                int page = boardList.size()/10 + 1;
+                int page = boardList.size() / 10 + 1;
                 int size = 10;
                 //given
                 Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
@@ -216,7 +218,7 @@ class BoardServiceTest {
             @Test
             @DisplayName("findAllByMemberId With PageRequestDto failure without content")
             public void findAllByMemberIdWithPageRequestDtoFail() {
-                int page = boardList.size()/10 + 1;
+                int page = boardList.size() / 10 + 1;
                 int size = 10;
                 PageRequestDto pageRequestDto = PageRequestDto.builder()
                         .page(page)
@@ -226,7 +228,7 @@ class BoardServiceTest {
                 //given
                 Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
                 Page<Board> mockResult = new PageImpl<Board>(new ArrayList<>(), pageable, boardList.size());
-                when(boardRepository.findByMember(any(),any()))
+                when(boardRepository.findByMember(any(), any()))
                         .thenReturn(mockResult);
 
                 BoardListDto all = boardService.findAll(memberList.get(0).getId(), pageRequestDto);
@@ -235,6 +237,89 @@ class BoardServiceTest {
                 assertThat(all.isPrev()).isFalse();
                 assertThat(all.isNext()).isTrue();
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("save test")
+    class SaveTest {
+        @Nested
+        @DisplayName("success")
+        class Success {
+
+            @Test
+            @DisplayName("save success")
+            public void saveSuccessTest() {
+                Member writer = memberList.get(0);
+
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .memberId(writer.getId())
+                        .title("title!")
+                        .content("content!!!")
+                        .build();
+
+                Board board = Board.builder()
+                        .id(Integer.toUnsignedLong(boardList.size() + 1))
+                        .title(dto.getTitle())
+                        .content(dto.getContent())
+                        .hit(0)
+                        .member(writer)
+                        .build();
+                when(boardRepository.save(any(Board.class))).thenReturn(board);
+
+                BoardDto savedBoard = boardService.save(dto);
+
+                assertThat(savedBoard.getMember().getId()).isEqualTo(writer.getId());
+                assertThat(savedBoard.getHit()).isEqualTo(0);
+                assertThat(savedBoard.getTitle()).isEqualTo(dto.getTitle());
+                assertThat(savedBoard.getContent()).isEqualTo(dto.getContent());
+            }
+        }
+
+        @Nested
+        @DisplayName("failure")
+        class Failure {
+            @Test
+            @DisplayName("title can not be null")
+            public void titleNullTest(){
+                Member writer = memberList.get(0);
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                                .memberId(writer.getId())
+                                        .content("content!")
+                                                .build();
+
+                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
+
+                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+            }
+
+            @Test
+            @DisplayName("content can not be null")
+            public void contentNullTest(){
+                Member writer = memberList.get(0);
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .memberId(writer.getId())
+                        .title("title!")
+                        .build();
+
+                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
+
+                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+            }
+
+            @Test
+            @DisplayName("member can not be null")
+            public void memberNullTest(){
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("title!")
+                        .content("content!")
+                        .build();
+
+                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
+
+                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+            }
+
         }
     }
 }
