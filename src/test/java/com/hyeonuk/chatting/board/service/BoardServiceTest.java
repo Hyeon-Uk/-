@@ -6,6 +6,8 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
+import com.hyeonuk.chatting.integ.service.xss.XssFilter;
+import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 
@@ -28,6 +34,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +44,9 @@ class BoardServiceTest {
 
     @Mock
     private BoardRepository boardRepository;
+
+    @Spy
+    private XssFilter xssFilter = new XssFilterImpl();
 
     List<Member> memberList;
     List<Board> boardList;
@@ -59,14 +69,26 @@ class BoardServiceTest {
         }
 
         for (int i = 0; i < 55; i++) {
-            boardList.add(Board.builder()
-                    .id(Integer.toUnsignedLong(i + 1))
-                    .title(String.format("title%d", i))
-                    .content(String.format("content%d", i))
-                    .hit(0)
-                    .member(memberList.get(i % memberList.size()))
-                    .build());
+            if(i<50) {
+                boardList.add(Board.builder()
+                        .id(Integer.toUnsignedLong(i + 1))
+                        .title(String.format("title%d", i))
+                        .content(String.format("content%d", i))
+                        .hit(0)
+                        .member(memberList.get(i % memberList.size()))
+                        .build());
+            }
+            else{//script가 들어간 title과 content
+                boardList.add(Board.builder()
+                        .id(Integer.toUnsignedLong(i + 1))
+                        .title(String.format("title%d <script>alert('hello world');</script>", i))
+                        .content(String.format("content%d <script>alert('hello world');</script>", i))
+                        .hit(0)
+                        .member(memberList.get(i % memberList.size()))
+                        .build());
+            }
         }
+
     }
 
     @Nested
@@ -83,10 +105,18 @@ class BoardServiceTest {
                 //when
                 BoardListDto all = boardService.findAll();
                 //then
-                assertThat(all.getContents().size()).isEqualTo(boardList
-                        .size());
+                List<BoardDto> contents = all.getContents();
+                assertThat(contents.size()).isEqualTo(boardList.size());
                 assertThat(all.isPrev()).isFalse();
                 assertThat(all.isNext()).isFalse();
+                contents.stream().forEach(content->{
+                    assertAll("xssTest",
+                            ()->assertThat(content.getTitle().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getTitle().indexOf(">")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf(">")).isEqualTo(-1)
+                    );
+                });
             }
 
             @Test
@@ -118,6 +148,15 @@ class BoardServiceTest {
                 for (int i = 0; i < 10; i++) {
                     assertThat(result.getContents().get(i).getId()).isEqualTo(boardList.get(boardList.size() - 1 - i).getId());
                 }
+
+                result.getContents().stream().forEach(content->{
+                    assertAll("xssTest",
+                            ()->assertThat(content.getTitle().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getTitle().indexOf(">")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf(">")).isEqualTo(-1)
+                    );
+                });
             }
 
             @Test
@@ -139,6 +178,15 @@ class BoardServiceTest {
                         .size());
                 assertThat(all.isPrev()).isFalse();
                 assertThat(all.isNext()).isFalse();
+
+                all.getContents().stream().forEach(content->{
+                    assertAll("xssTest",
+                            ()->assertThat(content.getTitle().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getTitle().indexOf(">")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf(">")).isEqualTo(-1)
+                    );
+                });
             }
 
             @Test
@@ -169,6 +217,15 @@ class BoardServiceTest {
                 assertThat(all.getContents().size()).isEqualTo(size);
                 assertThat(all.isPrev()).isFalse();
                 assertThat(all.isNext()).isTrue();
+
+                all.getContents().stream().forEach(content->{
+                    assertAll("xssTest",
+                            ()->assertThat(content.getTitle().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getTitle().indexOf(">")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf("<")).isEqualTo(-1),
+                            ()->assertThat(content.getContent().indexOf(">")).isEqualTo(-1)
+                    );
+                });
             }
         }
 
@@ -234,8 +291,8 @@ class BoardServiceTest {
                 BoardListDto all = boardService.findAll(memberList.get(0).getId(), pageRequestDto);
 
                 assertThat(all.getContents().size()).isEqualTo(0);
-                assertThat(all.isPrev()).isFalse();
-                assertThat(all.isNext()).isTrue();
+                assertThat(all.isPrev()).isTrue();
+                assertThat(all.isNext()).isFalse();
             }
         }
     }
@@ -273,6 +330,13 @@ class BoardServiceTest {
                 assertThat(savedBoard.getHit()).isEqualTo(0);
                 assertThat(savedBoard.getTitle()).isEqualTo(dto.getTitle());
                 assertThat(savedBoard.getContent()).isEqualTo(dto.getContent());
+
+                assertAll("xssTest",
+                        ()->assertThat(savedBoard.getTitle().indexOf("<")).isEqualTo(-1),
+                        ()->assertThat(savedBoard.getTitle().indexOf(">")).isEqualTo(-1),
+                        ()->assertThat(savedBoard.getContent().indexOf("<")).isEqualTo(-1),
+                        ()->assertThat(savedBoard.getContent().indexOf(">")).isEqualTo(-1)
+                );
             }
         }
 

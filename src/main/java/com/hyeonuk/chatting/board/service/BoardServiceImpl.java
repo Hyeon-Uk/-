@@ -6,11 +6,11 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
+import com.hyeonuk.chatting.integ.service.xss.XssFilter;
+import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
 import com.hyeonuk.chatting.member.entity.Member;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import java.util.List;
 /*
 * To Do :
 * 1. 전체적으로 XSS 방어 코드 적용하기
+* - 들어오고 나가는 content와 title에 xssFilter를 적용
 * 2. update 기능 구현
  */
 
@@ -28,10 +29,16 @@ import java.util.List;
 @AllArgsConstructor
 public class BoardServiceImpl implements BoardService{
     private final BoardRepository boardRepository;
+    private final XssFilter xssFilter;
 
     @Override
     public BoardDto save(BoardRegisterDto dto) {
-        //xss 방어 기법 적용하기
+        String title = dto.getTitle();
+        String content = dto.getContent();
+
+        dto.setTitle(xssFilter.filter(title));
+        dto.setContent(xssFilter.filter(content));
+
         return entityToDto(boardRepository.save(dtoToEntity(dto)));
     }
 
@@ -41,7 +48,13 @@ public class BoardServiceImpl implements BoardService{
         return BoardListDto.builder()
                 .next(false)
                 .prev(false)
-                .contents(list.stream().map(this::entityToDto).toList())
+                .contents(list.stream().map(this::entityToDto)
+                .map(dto->{
+                    dto.setTitle(xssFilter.filter(dto.getTitle()));
+                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    return dto;
+                })
+                .toList())
                 .build();
     }
 
@@ -52,7 +65,12 @@ public class BoardServiceImpl implements BoardService{
         return BoardListDto.builder()
                 .next(list.hasNext())
                 .prev(list.hasPrevious())
-                .contents(list.getContent().stream().map(this::entityToDto).toList())
+                .contents(list.getContent().stream().map(this::entityToDto)
+                .map(dto->{
+                    dto.setTitle(xssFilter.filter(dto.getTitle()));
+                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    return dto;
+                }).toList())
                 .build();
     }
 
@@ -62,7 +80,13 @@ public class BoardServiceImpl implements BoardService{
         return BoardListDto.builder()
                 .next(false)
                 .prev(false)
-                .contents(list.stream().map(this::entityToDto).toList())
+                .contents(list.stream().map(this::entityToDto)
+                .map(dto->{
+                    dto.setTitle(xssFilter.filter(dto.getTitle()));
+                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    return dto;
+                })
+                .toList())
                 .build();
     }
 
@@ -76,7 +100,13 @@ public class BoardServiceImpl implements BoardService{
         return BoardListDto.builder()
                 .next(list.hasNext())
                 .prev(list.hasPrevious())
-                .contents(list.getContent().stream().map(this::entityToDto).toList())
+                .contents(list.getContent().stream().map(this::entityToDto)
+                .map(dto->{
+                    dto.setTitle(xssFilter.filter(dto.getTitle()));
+                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    return dto;
+                })
+                .toList())
                 .build();
     }
 }
