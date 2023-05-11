@@ -219,6 +219,27 @@ public class MemberAuthServiceIntegrationTest {
                         ()->assertThat(login.getFriends().size()).isEqualTo(target.getFriends().size())
                         );
             }
+
+            @Test
+            public void tryCountInitWhenLoginSuccess(){
+                //given
+                LoginDto dto = LoginDto.builder()
+                        .email(email)
+                        .password("wrong")
+                        .build();
+
+                //when & then
+                Member target = memberRepository.findByEmail(email).get();
+                String message = assertThrows(InfoNotMatchException.class, () -> memberAuthService.login(dto)).getMessage();
+                assertThat(message).isEqualTo("비밀번호가 일치하지 않습니다.");
+                assertThat(target.getMemberSecurity().getTryCount()).isEqualTo(1);
+
+                //login success
+                dto.setPassword(password);
+                MemberDto login = memberAuthService.login(dto);
+
+                assertThat(target.getMemberSecurity().getTryCount()).isEqualTo(0);
+            }
         }
 
         @Nested
