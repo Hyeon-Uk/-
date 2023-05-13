@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-    public String[] excludePatterns = {"/auth/login","/auth/join"};
+    public String[] excludePatterns = {"/auth/login","/auth/join","/css/**","/js/**"};
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
