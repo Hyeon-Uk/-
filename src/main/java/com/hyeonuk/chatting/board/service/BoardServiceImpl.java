@@ -5,6 +5,7 @@ import com.hyeonuk.chatting.board.dto.BoardListDto;
 import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
+import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.integ.service.xss.XssFilter;
 import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
@@ -108,5 +109,10 @@ public class BoardServiceImpl implements BoardService{
                 })
                 .toList())
                 .build();
+    }
+
+    @Override
+    public BoardDto findById(Long boardId) throws BoardNotFoundException {
+        return entityToDto(boardRepository.findById(boardId).orElseThrow(()-> new BoardNotFoundException("해당 게시물이 존재하지 않습니다.")));
     }
 }

@@ -5,6 +5,7 @@ import com.hyeonuk.chatting.board.dto.BoardListDto;
 import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
+import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 
@@ -17,6 +18,8 @@ public interface BoardService {
 
     BoardListDto findAll(Long memberId);
     BoardListDto findAll(Long memberId,PageRequestDto pageRequestDto);
+
+    BoardDto findById(Long boardId) throws BoardNotFoundException;
 
     default BoardDto entityToDto(Board entity){
         return BoardDto.builder()
