@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -106,29 +107,67 @@ public class BoardServiceIntegTest {
             @DisplayName("findAll with Pageable success")
             public void findAllWithPageableSuccess() {
                 int size = 10;
-                for(int page = 0;page*size/size<boardList.size();page++){
+                for(int page = 0;page<(int)Math.ceil(boardList.size()/(double)size);page++){
+                    PageRequestDto pageRequestDto = PageRequestDto.builder()
+                            .page(page)
+                            .size(size)
+                            .build();
 
+                    BoardListDto all = boardService.findAll(pageRequestDto);
+
+                    int start = page*size;
+                    int end = Math.min(start+size-1,boardList.size()-1);
+
+                    assertAll("pageable",
+                            ()->assertThat(all.isPrev()).isEqualTo(start!=0),
+                            ()->assertThat(all.isNext()).isEqualTo(end != boardList.size()-1),
+                            ()->assertThat(all.getContents().size()).isEqualTo(end-start+1));
+
+                    all.getContents().stream().forEach(content->xssAssert(content));
                 }
-                PageRequestDto pageRequestDto = PageRequestDto.builder()
-                        .page(page)
-                        .size(size)
-                        .build();
-
-                BoardListDto all = boardService.findAll(pageRequestDto);
-
-                assertThat()
             }
 
             @Test
             @DisplayName("findAllByMemberId")
             public void findAllByMemberIdSuccess() {
+                for(Member member : memberList){
+                    BoardListDto all = boardService.findAll(member.getId());
 
+                    assertThat(all.getContents().size())
+                            .isEqualTo(boardList.stream().filter(b->b.getMember().getId()==member.getId()).collect(Collectors.toList()).size());
+
+                    all.getContents().stream().forEach(content->xssAssert(content));
+                }
             }
 
             @Test
             @DisplayName("findAllByMemberId With PageRequestDto")
             public void findAllByMemberIdWithPageRequestDtoSuccess() {
+                for(Member member : memberList){
+                    List<Board> targetBoardList = boardList.stream()
+                            .filter(b->b.getMember().getId()==member.getId())
+                            .toList();
 
+                    int size = 10;
+                    for(int page = 0;page<(int)Math.ceil(targetBoardList.size()/(double)size);page++){
+                        PageRequestDto pageRequestDto = PageRequestDto.builder()
+                                .page(page)
+                                .size(size)
+                                .build();
+
+                        BoardListDto all = boardService.findAll(member.getId(),pageRequestDto);
+
+                        int start = page*size;
+                        int end = Math.min(start+size-1,targetBoardList.size()-1);
+
+                        assertAll("pageable",
+                                ()->assertThat(all.isPrev()).isEqualTo(start!=0),
+                                ()->assertThat(all.isNext()).isEqualTo(end != targetBoardList.size()-1),
+                                ()->assertThat(all.getContents().size()).isEqualTo(end-start+1));
+
+                        all.getContents().stream().forEach(content->xssAssert(content));
+                    }
+                }
             }
         }
 
@@ -138,19 +177,44 @@ public class BoardServiceIntegTest {
             @Test
             @DisplayName("findAll with Pageable failure without content")
             public void findAllWithPageableSuccess() {
+                int size = 10;
+                int page = (int)Math.ceil(boardList.size()/(double)size) +1;
+                PageRequestDto dto = PageRequestDto.builder()
+                        .page(page)
+                        .size(size)
+                        .build();
 
+                BoardListDto all = boardService
+                        .findAll(dto);
+
+                assertThat(all.getContents().size()).isEqualTo(0);
             }
 
             @Test
             @DisplayName("findAllByMemberId failure")
             public void findAllByMemberIdFail() {
-
+                BoardListDto all = boardService.findAll(Long.MAX_VALUE);
+                assertAll("notFound",
+                        ()->assertThat(all.isNext()).isFalse(),
+                        ()->assertThat(all.isPrev()).isFalse(),
+                        ()->assertThat(all.getContents().isEmpty()).isTrue());
             }
 
             @Test
             @DisplayName("findAllByMemberId With PageRequestDto failure without content")
             public void findAllByMemberIdWithPageRequestDtoFail() {
+                int size = 10;
+                int page = 0;
+                PageRequestDto dto = PageRequestDto.builder()
+                        .page(page)
+                        .size(size)
+                        .build();
 
+                BoardListDto all = boardService.findAll(Long.MAX_VALUE, dto);
+                assertAll("notFound",
+                        ()->assertThat(all.isNext()).isFalse(),
+                        ()->assertThat(all.isPrev()).isFalse(),
+                        ()->assertThat(all.getContents().isEmpty()).isTrue());
             }
         }
     }

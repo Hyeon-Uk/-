@@ -60,7 +60,7 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     public BoardListDto findAll(PageRequestDto pageRequestDto) {
-        Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+        Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
         Page<Board> list = boardRepository.findAll(pageable);
         return BoardListDto.builder()
                 .next(list.hasNext())
@@ -92,7 +92,7 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     public BoardListDto findAll(Long memberId, PageRequestDto pageRequestDto) {
-        Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+        Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
         Page<Board> list = boardRepository.findByMember(Member.builder()
                 .id(memberId)
                 .build()
