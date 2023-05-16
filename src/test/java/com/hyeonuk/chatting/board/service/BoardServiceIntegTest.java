@@ -5,6 +5,7 @@ import com.hyeonuk.chatting.board.dto.BoardListDto;
 import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
+import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
@@ -218,6 +219,38 @@ public class BoardServiceIntegTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("findById test")
+    class FindByIdTest{
+        @Nested
+        @DisplayName("success")
+        class Success{
+            @Test
+            public void success() throws BoardNotFoundException {
+                for(Board board : boardList){
+                    BoardDto result = boardService.findById(board.getId());
+                    assertAll("board",
+                            ()->assertThat(result.getTitle()).isEqualTo(board.getTitle()),
+                            ()->assertThat(result.getContent()).isEqualTo(board.getContent()));
+
+                    xssAssert(result);
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("failure")
+        class Failure{
+            @Test
+            public void boardNotFoundException(){
+                Long target = Long.MAX_VALUE;
+
+                assertThrows(BoardNotFoundException.class,()->boardService.findById(target));
+            }
+        }
+    }
+
 
     @Nested
     @DisplayName("save test")
