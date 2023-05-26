@@ -262,7 +262,47 @@ public class BoardServiceIntegTest {
             @Test
             @DisplayName("save success")
             public void saveSuccessTest() {
+                Long memberId = memberList.get(0).getId();
+                int beforeSize = boardRepository.findAll().size();
+                int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
 
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("hello world")
+                        .content("hello everybody")
+                        .memberId(memberId)
+                        .build();
+
+                BoardDto save = boardService.save(dto);
+
+                assertAll("save",
+                        ()->assertThat(save.getTitle()).isEqualTo(dto.getTitle()),
+                        ()->assertThat(save.getContent()).isEqualTo(dto.getContent()),
+                        ()->assertThat(boardRepository.findAll().size()).isEqualTo(beforeSize+1),
+                        ()->assertThat(boardRepository.findByMember(Member.builder().id(memberId).build()).size()).isEqualTo(member0Size+1));
+                xssAssert(save);
+            }
+
+            @Test
+            @DisplayName("xss filter test")
+            public void xssTest(){
+                Long memberId = memberList.get(0).getId();
+                int beforeSize = boardRepository.findAll().size();
+                int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
+
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("hello<script>alert('hello');</script> world")
+                        .content("hello every<script>location.href='/'</script>body")
+                        .memberId(memberId)
+                        .build();
+
+                BoardDto save = boardService.save(dto);
+
+                assertAll("save",
+                        ()->assertThat(save.getTitle()).isEqualTo(dto.getTitle()),
+                        ()->assertThat(save.getContent()).isEqualTo(dto.getContent()),
+                        ()->assertThat(boardRepository.findAll().size()).isEqualTo(beforeSize+1),
+                        ()->assertThat(boardRepository.findByMember(Member.builder().id(memberId).build()).size()).isEqualTo(member0Size+1));
+                xssAssert(save);
             }
         }
 
@@ -272,7 +312,24 @@ public class BoardServiceIntegTest {
             @Test
             @DisplayName("title can not be null")
             public void titleNullTest() {
+                Long memberId = memberList.get(0).getId();
+                int beforeSize = boardRepository.findAll().size();
+                int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
 
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("hello world")
+                        .content("hello everybody")
+                        .memberId(memberId)
+                        .build();
+
+                BoardDto save = boardService.save(dto);
+
+                assertAll("save",
+                        ()->assertThat(save.getTitle()).isEqualTo(dto.getTitle()),
+                        ()->assertThat(save.getContent()).isEqualTo(dto.getContent()),
+                        ()->assertThat(boardRepository.findAll().size()).isEqualTo(beforeSize+1),
+                        ()->assertThat(boardRepository.findByMember(Member.builder().id(memberId).build()).size()).isEqualTo(member0Size+1));
+                xssAssert(save);
             }
 
             @Test
