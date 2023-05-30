@@ -121,7 +121,7 @@ class BoardServiceTest {
                 int page = 0;
                 int size = 10;
                 //given
-                Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+                Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
                 Page<Board> mockResult = new PageImpl<Board>(boardList.stream().sorted(new Comparator<Board>() {
                     @Override
                     public int compare(Board o1, Board o2) {
@@ -196,7 +196,7 @@ class BoardServiceTest {
                         .build();
 
                 //given
-                Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+                Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
                 Page<Board> mockResult = new PageImpl<Board>(boardList.stream()
                         .filter(b -> b.getMember().getId() == memberList.get(0).getId()).sorted(new Comparator<Board>() {
                             @Override
@@ -234,7 +234,7 @@ class BoardServiceTest {
                 int page = boardList.size() / 10 + 1;
                 int size = 10;
                 //given
-                Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+                Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
                 Page<Board> mockResult = new PageImpl<Board>(new ArrayList<Board>(), pageable, boardList.size());
                 when(boardRepository.findAll(pageable)).thenReturn(mockResult);
 
@@ -279,7 +279,7 @@ class BoardServiceTest {
                         .build();
 
                 //given
-                Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+                Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
                 Page<Board> mockResult = new PageImpl<Board>(new ArrayList<>(), pageable, boardList.size());
                 when(boardRepository.findByMember(any(), any()))
                         .thenReturn(mockResult);
