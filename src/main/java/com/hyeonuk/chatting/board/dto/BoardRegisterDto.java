@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardRegisterDto {
-    private long memberId;
+    private Long memberId;
 
     @NotBlank(message="제목을 입력해주세요")
     private String title;

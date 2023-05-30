@@ -6,12 +6,13 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
+import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.member.dto.MemberDto;
 import com.hyeonuk.chatting.member.entity.Member;
 
 public interface BoardService {
 
-    BoardDto save(BoardRegisterDto dto);
+    BoardDto save(BoardRegisterDto dto) throws CanNotBeNullException;
 
     BoardListDto findAll();
     BoardListDto findAll(PageRequestDto pageRequestDto);

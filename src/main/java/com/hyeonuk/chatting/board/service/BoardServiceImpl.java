@@ -6,11 +6,13 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
+import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.integ.service.xss.XssFilter;
 import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
 import com.hyeonuk.chatting.member.entity.Member;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,14 +35,22 @@ public class BoardServiceImpl implements BoardService{
     private final XssFilter xssFilter;
 
     @Override
-    public BoardDto save(BoardRegisterDto dto) {
+    public BoardDto save(BoardRegisterDto dto) throws CanNotBeNullException {
         String title = dto.getTitle();
         String content = dto.getContent();
+        Long memberId = dto.getMemberId();
+
+        if(title == null || content == null || memberId == null){
+            throw new CanNotBeNullException("모든 값을 입력해주세요");
+        }
 
         dto.setTitle(xssFilter.filter(title));
         dto.setContent(xssFilter.filter(content));
-
-        return entityToDto(boardRepository.save(dtoToEntity(dto)));
+        try {
+            return entityToDto(boardRepository.save(dtoToEntity(dto)));
+        }catch(DataIntegrityViolationException e){
+            throw new CanNotBeNullException("등록 오류");
+        }
     }
 
     @Override
