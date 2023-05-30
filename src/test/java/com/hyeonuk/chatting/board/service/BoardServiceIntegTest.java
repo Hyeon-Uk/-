@@ -6,6 +6,7 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
+import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
@@ -261,7 +262,7 @@ public class BoardServiceIntegTest {
 
             @Test
             @DisplayName("save success")
-            public void saveSuccessTest() {
+            public void saveSuccessTest() throws CanNotBeNullException {
                 Long memberId = memberList.get(0).getId();
                 int beforeSize = boardRepository.findAll().size();
                 int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
@@ -284,7 +285,7 @@ public class BoardServiceIntegTest {
 
             @Test
             @DisplayName("xss filter test")
-            public void xssTest(){
+            public void xssTest() throws CanNotBeNullException {
                 Long memberId = memberList.get(0).getId();
                 int beforeSize = boardRepository.findAll().size();
                 int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
@@ -317,31 +318,46 @@ public class BoardServiceIntegTest {
                 int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
 
                 BoardRegisterDto dto = BoardRegisterDto.builder()
-                        .title("hello world")
                         .content("hello everybody")
                         .memberId(memberId)
                         .build();
-
-                BoardDto save = boardService.save(dto);
-
-                assertAll("save",
-                        ()->assertThat(save.getTitle()).isEqualTo(dto.getTitle()),
-                        ()->assertThat(save.getContent()).isEqualTo(dto.getContent()),
-                        ()->assertThat(boardRepository.findAll().size()).isEqualTo(beforeSize+1),
-                        ()->assertThat(boardRepository.findByMember(Member.builder().id(memberId).build()).size()).isEqualTo(member0Size+1));
-                xssAssert(save);
+                assertThrows(CanNotBeNullException.class,()->{
+                    BoardDto save = boardService.save(dto);
+                });
             }
 
             @Test
             @DisplayName("content can not be null")
             public void contentNullTest() {
+                Long memberId = memberList.get(0).getId();
+                int beforeSize = boardRepository.findAll().size();
+                int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
 
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("hello world")
+                        .memberId(memberId)
+                        .build();
+
+                assertThrows(CanNotBeNullException.class,()->{
+                    BoardDto save = boardService.save(dto);
+                });
             }
 
             @Test
             @DisplayName("member can not be null")
             public void memberNullTest() {
+                Long memberId = memberList.get(0).getId();
+                int beforeSize = boardRepository.findAll().size();
+                int member0Size = boardRepository.findByMember(Member.builder().id(memberId).build()).size();
 
+                BoardRegisterDto dto = BoardRegisterDto.builder()
+                        .title("hello world")
+                        .memberId(memberId)
+                        .build();
+
+                assertThrows(CanNotBeNullException.class,()->{
+                    BoardDto save = boardService.save(dto);
+                });
             }
 
         }

@@ -5,6 +5,7 @@ import com.hyeonuk.chatting.board.dto.BoardListDto;
 import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
+import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.integ.service.xss.XssFilter;
 import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
@@ -306,7 +307,7 @@ class BoardServiceTest {
 
             @Test
             @DisplayName("save success")
-            public void saveSuccessTest() {
+            public void saveSuccessTest() throws CanNotBeNullException {
                 Member writer = memberList.get(0);
 
                 BoardRegisterDto dto = BoardRegisterDto.builder()
@@ -352,9 +353,7 @@ class BoardServiceTest {
                                         .content("content!")
                                                 .build();
 
-                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
-
-                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+                assertThrows(CanNotBeNullException.class,()->boardService.save(dto));
             }
 
             @Test
@@ -366,9 +365,7 @@ class BoardServiceTest {
                         .title("title!")
                         .build();
 
-                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
-
-                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+                assertThrows(CanNotBeNullException.class,()->boardService.save(dto));
             }
 
             @Test
@@ -379,9 +376,7 @@ class BoardServiceTest {
                         .content("content!")
                         .build();
 
-                when(boardRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
-
-                assertThrows(DataIntegrityViolationException.class,()->boardService.save(dto));
+                assertThrows(CanNotBeNullException.class,()->boardService.save(dto));
             }
 
         }
