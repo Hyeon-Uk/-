@@ -7,8 +7,8 @@ import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
-import com.hyeonuk.chatting.integ.service.xss.XssFilter;
-import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
+import com.hyeonuk.chatting.integ.service.xss.XssFilterService;
+import com.hyeonuk.chatting.integ.service.xss.XssFilterServiceImpl;
 import com.hyeonuk.chatting.member.entity.Member;
 import com.hyeonuk.chatting.member.entity.MemberSecurity;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -35,7 +31,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +42,7 @@ class BoardServiceTest {
     private BoardRepository boardRepository;
 
     @Spy
-    private XssFilter xssFilter = new XssFilterImpl();
+    private XssFilterService xssFilterService = new XssFilterServiceImpl();
 
     List<Member> memberList;
     List<Board> boardList;
