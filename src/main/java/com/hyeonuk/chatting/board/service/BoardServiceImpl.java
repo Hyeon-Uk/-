@@ -6,8 +6,7 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
-import com.hyeonuk.chatting.integ.service.xss.XssFilter;
-import com.hyeonuk.chatting.integ.service.xss.XssFilterImpl;
+import com.hyeonuk.chatting.integ.service.xss.XssFilterService;
 import com.hyeonuk.chatting.member.entity.Member;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,15 +28,15 @@ import java.util.List;
 @AllArgsConstructor
 public class BoardServiceImpl implements BoardService{
     private final BoardRepository boardRepository;
-    private final XssFilter xssFilter;
+    private final XssFilterService xssFilterService;
 
     @Override
     public BoardDto save(BoardRegisterDto dto) {
         String title = dto.getTitle();
         String content = dto.getContent();
 
-        dto.setTitle(xssFilter.filter(title));
-        dto.setContent(xssFilter.filter(content));
+        dto.setTitle(xssFilterService.filter(title));
+        dto.setContent(xssFilterService.filter(content));
 
         return entityToDto(boardRepository.save(dtoToEntity(dto)));
     }
@@ -50,8 +49,8 @@ public class BoardServiceImpl implements BoardService{
                 .prev(false)
                 .contents(list.stream().map(this::entityToDto)
                 .map(dto->{
-                    dto.setTitle(xssFilter.filter(dto.getTitle()));
-                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    dto.setTitle(xssFilterService.filter(dto.getTitle()));
+                    dto.setContent(xssFilterService.filter(dto.getContent()));
                     return dto;
                 })
                 .toList())
@@ -67,8 +66,8 @@ public class BoardServiceImpl implements BoardService{
                 .prev(list.hasPrevious())
                 .contents(list.getContent().stream().map(this::entityToDto)
                 .map(dto->{
-                    dto.setTitle(xssFilter.filter(dto.getTitle()));
-                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    dto.setTitle(xssFilterService.filter(dto.getTitle()));
+                    dto.setContent(xssFilterService.filter(dto.getContent()));
                     return dto;
                 }).toList())
                 .build();
@@ -82,8 +81,8 @@ public class BoardServiceImpl implements BoardService{
                 .prev(false)
                 .contents(list.stream().map(this::entityToDto)
                 .map(dto->{
-                    dto.setTitle(xssFilter.filter(dto.getTitle()));
-                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    dto.setTitle(xssFilterService.filter(dto.getTitle()));
+                    dto.setContent(xssFilterService.filter(dto.getContent()));
                     return dto;
                 })
                 .toList())
@@ -102,8 +101,8 @@ public class BoardServiceImpl implements BoardService{
                 .prev(list.hasPrevious())
                 .contents(list.getContent().stream().map(this::entityToDto)
                 .map(dto->{
-                    dto.setTitle(xssFilter.filter(dto.getTitle()));
-                    dto.setContent(xssFilter.filter(dto.getContent()));
+                    dto.setTitle(xssFilterService.filter(dto.getTitle()));
+                    dto.setContent(xssFilterService.filter(dto.getContent()));
                     return dto;
                 })
                 .toList())

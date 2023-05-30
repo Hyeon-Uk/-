@@ -1,5 +1,5 @@
 package com.hyeonuk.chatting.integ.service.xss;
 
-public interface XssFilter {
+public interface XssFilterService {
     String filter(String text);
 }
