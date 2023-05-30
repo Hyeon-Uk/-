@@ -6,10 +6,12 @@ import com.hyeonuk.chatting.board.dto.BoardRegisterDto;
 import com.hyeonuk.chatting.board.dto.PageRequestDto;
 import com.hyeonuk.chatting.board.entity.Board;
 import com.hyeonuk.chatting.board.exception.BoardNotFoundException;
+import com.hyeonuk.chatting.board.exception.CanNotBeNullException;
 import com.hyeonuk.chatting.board.repository.BoardRepository;
 import com.hyeonuk.chatting.integ.service.xss.XssFilterService;
 import com.hyeonuk.chatting.member.entity.Member;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,14 +34,25 @@ public class BoardServiceImpl implements BoardService{
     private final XssFilterService xssFilterService;
 
     @Override
-    public BoardDto save(BoardRegisterDto dto) {
+    public BoardDto save(BoardRegisterDto dto) throws CanNotBeNullException {
         String title = dto.getTitle();
         String content = dto.getContent();
+        Long memberId = dto.getMemberId();
+
+        if(title == null || title.equals("")
+        || content == null || content.equals("")
+        || memberId == null){
+            throw new CanNotBeNullException("모든 값을 입력해주세요");
+        }
 
         dto.setTitle(xssFilterService.filter(title));
         dto.setContent(xssFilterService.filter(content));
 
-        return entityToDto(boardRepository.save(dtoToEntity(dto)));
+        try {
+            return entityToDto(boardRepository.save(dtoToEntity(dto)));
+        }catch(DataIntegrityViolationException e){
+            throw new CanNotBeNullException("등록 오류");
+        }
     }
 
     @Override
@@ -60,7 +73,7 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     public BoardListDto findAll(PageRequestDto pageRequestDto) {
-        Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+        Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
         Page<Board> list = boardRepository.findAll(pageable);
         return BoardListDto.builder()
                 .next(list.hasNext())
@@ -92,7 +105,7 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     public BoardListDto findAll(Long memberId, PageRequestDto pageRequestDto) {
-        Pageable pageable = pageRequestDto.getPageable(Sort.by("created_at").descending());
+        Pageable pageable = pageRequestDto.getPageable(Sort.by("createdAt").descending());
         Page<Board> list = boardRepository.findByMember(Member.builder()
                 .id(memberId)
                 .build()
