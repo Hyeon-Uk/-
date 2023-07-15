@@ -19,6 +19,9 @@
 # Class Diagram (현재까지)
 ![img.png](resource/uml.png)
 
+# XSS Filtering
+- RequestWrapper를 이용하여 < , > , ( , ) 를 필터링함.
+
 # 회원가입 Sequence
 
 ※ 회원가입 시 email 추가 인증을 구현할 예정 ※

@@ -10,7 +10,7 @@ class XssFilterTest {
     @Test
     public void xssFilterSuccess(){
         String text = "title !!!! <script>alert('helloworld');</script>";
-        String expected = "title !!!! &lt;script&gt;alert('helloworld');&lt;/script&gt;";
+        String expected = "title !!!! &lt;script&gt;alert&#40;'helloworld'&#41;;&lt;/script&gt;";
         assertThat(xssFilterService.filter(text)).isEqualTo(expected);
     }
 
