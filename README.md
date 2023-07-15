@@ -14,7 +14,7 @@
   - salt : 비밀번호 암호화시 salt값
   - tryCount : 로그인 시도 횟수
 
-- Friendship : 친구관계를 매핑하는 테이블
+- Friendship : 친구관계를 매핑하는 테이블:
     
 # Class Diagram (현재까지)
 ![img.png](resource/uml.png)
